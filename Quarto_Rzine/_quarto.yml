@@ -1,0 +1,40 @@
+project:
+  title: "L'optimisation multicritère comme outil de classification normative"
+  render: 
+    - index.qmd
+
+
+title: "L'optimisation multicritère comme outil de classification normative"
+subtitle: "D'un indice composite au front de Pareto, une analyse des départements français"
+date: today
+# date-modified: last-modified
+author:
+  - name: "Tristan Majou"
+    affiliations:
+      - name: "PLACES, CY Cergy Paris Université"
+        url: https://cyplaces.cyu.fr/
+    orcid: 0000-0003-2757-0559
+    
+keywords: [Optimisation, indice composite, front de Pareto]
+abstract: |
+     Les indices composites sont couramment employés pour décrire et classer les territoires sous une approche normative. Une adaptation du front de Pareto, appartenant au domaine de l'optimisation multicritère, permet de combler certaines lacunes des indices composites. Initialement développé par les sciences économiques, nous construisons un indice porté sur les objectifs du développement durable à l'échelle des départements français afin de présenter les apports du front de Pareto dans ce type d'analyse. Un calcul de l'éloignement des départements aux situations optimales observées nous permet de proposer une double hiérarchie : entre les départements selon leur niveau de besoin et la pluralité des besoins au sein de chaque département.
+
+draft: false # set to false once the build is running
+published: false 
+doi: "10.xxxx/xxx-xxx"
+
+other-links:
+  - text: Code source
+    icon: github
+    href: "https://github.com/rzine-reviews/rzine-article-template"
+
+embed-resources: true
+lang: fr-FR 
+repo: "template"
+
+format:
+  rzine-html: default
+  rzine-pdf: default
+
+
+
