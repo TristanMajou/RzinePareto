@@ -1,0 +1,1081 @@
+# Introduction
+
+## Une critique des indices composites
+
+Depuis la fin des années 2000, les indices composites qui ont pour objectif de mesurer les inégalités socio-économiques, se sont multipliés. Cet accroissement résulte du rapport le rapport @stiglitz_2009, qui encourage l'introduction de nouveaux indicateurs permettant de capturer la pluralité des formes que peuvent prendre la pauvreté, la précarité et le bien-être. Situés dans la continuité de l'indice de développement humain (IDH), les indices composites servent un rôle normatif : le choix des indicateurs révèle ce qui devrait être important dans la société, et dresse un panorama autour de ce choix.
+
+De ce fait, les indices composites sont souvent utilisés pour porter un regard politique sur le territoire, en dépassant les indicateurs monétaires traditionnels tout en donnant la possibilité de les incorporer. L'IDH permet de concurrencer le PIB sur la question du bien-être humain auprès des organisations supranationales [@klugman_2011]. Reporters sans frontières utilise un indice composite pour mesurer la liberté de la presse dans le monde [@reporter-sans-frontieres_2023]. On trouve, par ailleurs, des indices composites ayant une visée nationale ou régionale, comme l'IDH-2, un indice de développement humain établi pour la région Île-de-France [@nascimento_2008], le PRDI, qui mesure les inégalités interrégionales portugaises [@silva_2014], ou encore de l'indice JANE [@delclos-alio_2018], identifiant la vitalité urbaine à Barcelone.
+
+Si cette approche présente d'importants avantages, en proposant de synthétiser une quantité importante d'indicateurs divers, elle comporte d'importantes limites, tant sur la méthodologie que sur l'opérabilité. Nous proposons d'en analyser deux :
+
+-   les indices composites mettent en évidence un excès de synthèse de l'information utile, en rendant opaques les causes et solutions possibles d'une inégalité constatée.
+
+-   les indices composites présentent une échelle linéaire relativiste qui fait tendre vers un unique "idéal". La méthode oblige à placer sur un piédestal une unique observation, devenant par définition, le modèle à partir duquel toutes les autres sont comparées.
+
+Dans cet article, nous proposons une méthode parallèle aux indices en mobilisant le domaine de l'optimisation multicritères. Un outil de cette sous-discipline, le front de Pareto, peut être utilisé pour corriger les faiblesses des indices composites mentionnés à l'instant. L'optimisation permet la construction de "compromis" entre les indicateurs, en en établissant une hiérarchisation entre des itérations "efficaces" et "non efficaces". Cette approche offre une synthèse de l'information à partir de laquelle des recommandations en lien avec les données utilisées peuvent être établies.
+
+Cette approche se veut complémentaire aux indices composites. En effet, elle en conserve le caractère normatif de l'analyse. Nous parlons plus précisément de normativité axiologique en proposant "*des conditions de cohérence des valeurs attribuées à des actions humaines*" qui, dans le contexte d'une analyse économique, "*concerne une hiérarchisation des productions et consommations selon des valeurs, une répartition des biens*"[@grangerNormativiteScientifique1999].
+
+La normativité peut s'exprimer par le choix des indicateurs mobilisés et des hypothèses réalisées pour leur attribuer une signification sur la société (normativité épistémique) ou par la mise en forme des résultats d'une telle analyse. Le but normatif que nous poursuivons ici est, au sens très large, l'amélioration des conditions de vie humaines.
+
+Une première étape consistera en la production d'un indice composite sur le bien-être en France, suivie des analyses réalisables à partir de ces indicateurs en mobilisant le front de Pareto.
+
+## Outils et données
+
+Dans cet article, nous traiterons le cas de la France entière, c'est-à-dire de la métropole ainsi que des départements d'outre-mer (Guadeloupe, Guyane, Martinique, Mayotte et La Réunion). Un ensemble de packages R est utilisé :
+
+```{r message=FALSE, warning=FALSE}
+#| label: Packages utilisés
+library(dplyr) # <1>
+library(ggplot2) # <2> 
+library(mapsf) # <3>
+library(matrixStats)# <4>
+library(readr)# <5>
+library(reshape2)# <6>
+library(rPref)# <7>
+library(scatterpie)# <8>
+library(sf)# <9>
+library(ggiraph)# <10>
+library(patchwork)# <11>
+```
+
+1.  Utile pour le traitement des données.
+2.  Un package couramment utilisé pour la création de graphiques.
+3.  Permet de cartographier avec une grande facilité des objets `sf`.
+4.  Facilite le calcul et la manipulation de matrices.
+5.  Lit les fichiers csv.
+6.  Automatise les transformations des tables élémentaires en format long.
+7.  Un outil spécialisé dans le calcul des maxima, en particulier le front de Pareto.
+8.  Permet de dessiner des diagrammes circulaires sur une cartographie `ggplot`.
+9.  Un outil permettant de faire du SIG dans R, tout en facilitant le traitement des données.
+10. Un complément de `ggplot` pour rendre les graphiques interactifs.
+11. Connecte plusieurs graphiques ensemble.
+
+Avec ces packages, nous mobilisons deux bases de données :
+
+1.  Les départements français, provenant de la [base Admin Express de l'IGN](https://geoservices.ign.fr/adminexpress)
+
+2.  Une table de données personnalisée, représentant un certain nombre d'indicateurs issus [du site des statistiques locales de l'Insee](https://statistiques-locales.insee.fr/) par département français (nous détaillons ces indicateurs plus loin).
+
+3.  Un [fond de carte du monde](https://www.naturalearthdata.com/), que nous utilisons vers la fin de l'article.
+
+```{r message=FALSE, warning=FALSE, results='hide'}
+#| label: Bases de données
+
+df<-read_csv("data/insee_locale.csv")
+dep<-st_read("data/départements.gpkg", quiet = T)
+monde<-st_read("data/ne_110m_land/ne_110m_land.shp", quiet = T)
+```
+
+Nous nous e limitons pas à la seule France métropolitaine dans cette étude, ce qui représente un certain nombre de défis en termes de cartographie sur R. Le package `mapsf` permet notamment la création d'encarts dans une carte, complexifiant et rallongeant le code, en le rendant peu intuitif à la lecture. Nous proposons donc que pour chaque cartographie, une version métropolitaine soit proposée en présentant le code du package `mapsf` ou `ggplot` adaptée. En parallèle, nous utiliserons une fonction `carto` personnalisée disponible dans l'annexe, qui crée automatiquement les encarts adaptés. Nous utilisons également d'autres fonctions personnalisées :
+
+-   `carto` : en utilisant `mapsf`, crée une cartographie de la France entière, avec `carto_typo` une fonction adaptée pour les cartes typologiques.
+-   `fnorm` : permet de rapidement normaliser un vecteur numérique entré.
+
+```{r}
+#| label: Fonctions complémentaires
+source("data/Fonctions_complémentaires.R")
+```
+
+# Les indices composites
+
+## Une origine économique et des usages multiples
+
+Les indices composites émergent à la fin du XVIIIᵉ siècle afin de mesurer la variation des prix en Prusse et en Allemagne. Deux indices majeurs sont développés séparément par Étienne Laspeyres [-@laspeyresIXBerechnungMittleren1871] et Hermann Paasche [-@paascheZuckerproduktionWeltIhre1905], portant sur la mesure de l'inflation, laquelle se base sur l'estimation d'un panier de biens, dont la quantité et le prix de chaque bien peuvent varier dans ce panier. Les deux indices diffèrent : celui de Paasche calcule une moyenne harmonique des prix, celui de Laspeyres calcule une moyenne arithmétique. Enfin, l'indice de Fischer est utilisé pour combiner le résultat des deux indices en un indicateur unique.
+
+Cette origine économique de la méthode se retrouve également dans la finance, où les indices composites se sont multipliés pour rendre compte de l'évolution de divers paniers d'actions sur la bourse, ou plus précisément pour rendre compte de la performance d'un investissement donné.
+
+L'adoption fut plus lente dans les autres domaines des sciences humaines et sociales. Alors qu'Irving Fisher publiait "The Making of Index Numbers" [-@irvingfisherMakingIndexNumbers1927], et que leur usage en finance est devenu depuis ubiquitaire, la présence des indices composites reste peu marquée au sein de la méthodologie dans la plupart des autres disciplines. La géographie et la sociologie préfèrent ainsi l'usage en statistiques des analyses en composantes principales et multiples, permettant une synthèse non hiérarchisée des indicateurs mobilisés. L'émergence des méthodes statistiques dans la géographie entre 1950 et 1970, caractérisée de "révolution quantitative" [@kitchinInternationalEncyclopediaHuman2009, pp. 315-325], motiva néanmoins la multiplication de ces indices. L'INSEE, notamment, en développera un certain nombre, dans le but de surveiller les variations de secteurs stratégiques du territoire (comme le logement, la construction ou la production alimentaire).
+
+Ce n'est finalement que durant les années 1990, par l'introduction de l'indice de développement humain (IDH), que la méthode connut une effervescence de ses usages. L'indice composite ne servait plus seulement à la mesure et à la surveillance de grands agrégats longitudinaux, mais il pouvait permettre la comparaison internationale et infranationale, sur des thématiques diversifiées, à partir du moment où il était possible de quantifier un phénomène. Les organisations non gouvernementales ont été friandes de cet outil qui, combiné à la cartographie, permet de hiérarchiser les efforts ou les résultats des territoires selon ce qu'elles souhaitent valoriser. Ces usages plus politiques mettent, par exemple, en lumière les libertés individuelles et de la presse ou encore l'équité climatique, illustrant le caractère normatif de la méthode.
+
+L'IDH incarne véritablement le point de bascule d'une appropriation par le reste des sciences sociales de cette méthode avec pour mise en forme majoritaire la cartographie. En France, le rapport Stiglitz [-@stiglitz_2009] encouragea la création de ces indices pour mesurer les inégalités relatives nationales dans un contexte de crise financière majeure. Ainsi, de nombreux travaux se sont mis à traduire l'IDH calculé au niveau mondial en un indicateur national ou régional. Permettant de mélanger des indicateurs de natures et de thématiques variées, la méthode des indices composites présente un fort intérêt pourmesurer la pauvreté multidimensionnelle ou le bien-être.
+
+Aujourd'hui, sa présence courante, répertoriée par @banduraCompositeIndicatorsRankings2011, bien que rarement directement citée, soulève quelques questions. Parce que cette méthode a pour fonction principale de synthétiser l'information, elle est donc dépendante d'un savoir déjà existant et quantifié. Son intérêt à la fois scientifique et opérationnel est donc relatif à la recontextualisation proposée de ce savoir. Son usage par les ONG de tous bords politiques témoigne ensuite de son utilité rhétorique perçue, la simplification pouvant être avantageuse jusqu'au point où elle permet de camoufler les choix méthodologiques et d'imposer une vision sur un thème particulier.
+
+Les indices composites incarnent des outils de légitimation d'un discours. En proposant une représentation d'une distribution statistique, ils laissent une grande liberté d'interprétation et de formulation d'hypothèses. Les indicateurs qui les composent reposent parfois sur des justifications rudimentaires ou discutables et qui finissent camouflées par le résultat final. Ceci nous amène à réitérer les deux limites introduites précemment :
+
+-   les indices composites mettent en évidence un excès de synthèse de l'information utile, en rendant opaques les causes et solutions possibles d'une inégalité constatée.
+
+-   les indices composites présentent une échelle linéaire relativiste qui fait tendre vers un unique "idéal". La méthode oblige à placer sur un piédestal une unique observation, devenant par définition, le modèle à partir duquel toutes les autres sont comparées.
+
+## La construction d'un indice du bien-être en France
+
+Pour mieux comprendre ces limites, nous construisons un indice composite porté sur les objectifs du développement durable. [Le site des statistiques locales de l'Insee](https://statistiques-locales.insee.fr/) propose un ensemble d'indicateurs liés, nous en mobiliserons six pour construire notre indice. Ceux-ci illustrent selon nous des facteurs de bien-être qui sont régulièrement utilisés dans la littérature.
+
+Un indice composite est composé d'indicateurs qui peuvent eux-mêmes être réunis dans des dimensions, le plus souvent selon une thématique commune. Ceci peut amener, par exemple, à rassembler un nombre inégal d'indicateurs entre dimensions pour leur donner, au final, le même poids pour le calcul du résultat. Afin de garder ce paramètre simple, l'indice que nous allons créer appliquera un poids égal à chaque indicateur[^index-1], et dans ce cadre, nous n'allons pas créer de thématiques regroupant les indicateurs.
+
+[^index-1]: Une pondération égalitaire est souvent préférée par sa simplicité, mais cette posture n'est généralement pas justifiée bien qu'elle soit arbitraire. De plus, les différentes variances et corrélations des indicateurs peuvent venir biaiser la pondération égalitaire. En réalité, @becker_2017 explique que le poids choisi pour un indicateur ne se traduit pas parfaitement par l'impact final de l'indicateur sur l'indice. Des solutions existent, les poids peuvent être corrigés *a posteriori* ou être construits en prenant en compte les corrélations des indicateurs, comme chez @betti_2008.
+
+### Indicateurs mobilisés
+
+Nous mobiliserons les suivants pour chaque département français :
+
+-   Part des non ou peu diplômés dans la pop. non scolarisée de 15 ans ou + 2022 (`scol`)
+
+-   Médiane du niveau de vie 2021[^index-2] (`ndv`)
+
+-   Taux de chômage annuel moyen 2024 (`chom`)
+
+-   Part des logements en situation de sur-occupation 2021 (`suro`)
+
+-   Part de la population éloignée des équipements de proximité 2021 (`eprox`)
+
+-   Taux de mortalité infantile 2021-2023 (`morti`)
+
+[^index-2]: Dans cet article, le cas de Mayotte présente des données manquantes pour les indicateurs `suro` et `eprox`. Afin de ne pas sacrifier l'analyse de ce territoire en particulier, nous comblons ces données manquantes par le département le plus proche, celui de la Réunion. De plus, dans le reste de cet article, nous incluons Mayotte comme un département plutôt que de réitérer son statut spécifique de département-région.
+
+Les données que nous utilisons ne sont pas de même nature ; elles sont donc non commensurables et nécessitent d'être normalisées. Nous souhaitons que la valeur "1" représente la "meilleure situation". Or, dans la plupart de nos indicateurs, une augmentation de ceux-ci équivaut à une dégradation de la situation des personnes. À l'exception de la médiane du niveau de vie, il convient alors d'inverser la mesure de telle manière que "0" représentera, par exemple, le taux de mortalité le plus élevé observable en France.
+
+```{r fig.align="center", fig.cap="Figure 1: Distribution des indicateurs normalisés.", fig.height=10, fig.width=12, message=FALSE, warning=FALSE}
+#| label: Distribution des indicateurs
+
+#Calcul des indicateurs normalisés
+df$scol_n<-1-fnorm(df$scol)
+df$ndv_n<-fnorm(df$ndv)
+df$chom_n<-1-fnorm(df$chom)
+df$suro_n<-1-fnorm(df$suro)
+df$eprox_n<-1-fnorm(df$eprox)
+df$morti_n<-1-fnorm(df$morti)
+
+#palette de couleur pour les graphiques et les cartes
+pal<-c("#e76f51","#264653","#e9c46a","#8ab17d","#f4a261","#2a9d8f")
+
+#Distribution des indicateurs
+g<-ggplot(
+  melt(df[,c(2,9:14)] %>% as.data.frame()),
+  aes(x = variable, y = value, fill = variable))+
+  geom_boxplot(outliers = FALSE)+
+  geom_jitter_interactive(aes(tooltip = libellé), alpha = 0.5, size = 3)+
+  theme_minimal()+
+  theme(legend.position = "none")+
+  scale_fill_manual(values = pal)+
+  labs(x = "",
+       y = "Valeur normalisée")
+
+girafe(ggobj = g)
+```
+
+La plupart des départements se situent plutôt proches de la valeur maximale pour chaque indicateur, la proximité aux équipements est le facteur le plus différenciant entre les départements, illustré par une variance plus élevée. On trouve des valeurs aberrantes. Le plus souvent dans le mauvais sens, avec Mayotte qui présente la valeur plancher pour les trois premiers indicateurs ainsi que la mortalité infantile, la Guyane pour la suroccupation des logements et la Creuse pour la proximité aux équipements. Quelques départements le sont dans le bon sens pour Paris et les Hauts-de-Seine, où la population adulte a le plus souvent le bac, où le niveau de vie médian est le plus élevé. Le niveau de vie ne prenant pas en compte la variation du coût de la vie, le résultat n'est pas étonnant.
+
+### Calcul de l'indice
+
+Il existe plusieurs manières de calculer l'indice synthétique à partir des indicateurs normalisés. Comme mentionné précédemment, nous choisissons de calculer une moyenne arithmétique entre les indicateurs, et de normaliser le résultat.
+
+```{r message=FALSE, warning=FALSE}
+#| label: Création de l'indice
+#Calcul de la moyenne arithmétique
+df$indice<-(df$scol_n + df$ndv_n + df$chom_n + df$suro_n + df$eprox_n + df$morti_n) / 6 #le nombre d'indicateurs utilisés
+#Normalisation du résultat
+df$indice_n<-fnorm(df$indice)
+
+#Jointure spatiale
+df<-left_join(dep,df,"code_insee")
+
+#Limites de classes
+limites<-mf_get_breaks(df$indice_n,
+              5,
+              "quantile",)
+
+#liste des départements métropolitains
+met<-df$code_insee[1:96]
+```
+
+::: {.panel-tabset .nav-pills}
+## Métropole
+
+```{r fig.align="center", fig.cap="Figure 2a: Indice composite sur les indicateurs du développement durable - France métropolitaine.", fig.height=10, fig.width=15, message=FALSE, warning=FALSE}
+#| label: Indice composite - métropole
+
+mf_choro(df %>% filter(code_insee %in% met),
+         breaks = limites,
+         var = "indice_n", 
+         pal = "Blue-Red 2",
+         leg_size = 2,
+        leg_val_cex = 2,
+        leg_title_cex = 2,
+        leg_title = "Niveau de l'indice composite")
+mf_inset_on(df, pos = "topleft")
+mf_choro(df %>% filter(code_insee_de_la_region == "11"),
+         breaks = limites,
+         var = "indice_n", 
+         pal = "Blue-Red 2",
+         leg_pos = NA)#Encart pour l'île-de-France
+mf_inset_off()
+```
+
+## France entière
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 2b: Indice composite sur les indicateurs du développement durable - France entière", fig.height=10, fig.width=15}
+#| label: Indice composite - France entière
+carto(x = df,
+      var = "indice_n",
+      type = "choro",
+      breaks = limites,
+      pal = "Blue-Red 2")
+```
+:::
+
+Notre indice dépeint les difficultés que peuvent connaître certains territoires, en particulier dans le centre de la France, dans le nord-est, dans certains départements en Île-de-France et au-delà de la France métropolitaine. Trois groupes de départements semblent concentrer les valeurs les plus positives : la côte ouest de la métropole, l'ouest de l'Île-de-France ainsi que du côté des Alpes. Tandis que les départements d'outre-mer se distinguent par des valeurs généralement très basses.
+
+## Aperçu critique du résultat
+
+### Un excès de synthèse de l'information utile.
+
+Si les valeurs extrêmes de notre indice permettent d'identifier immédiatement quels espaces sont favorisés et lesquels sont défavorisés, il est difficile de suggérer les causes d'une valeur spécifique pour un département donné, en particulier si sa valeur est plutôt moyenne. Deux départements avec une valeur proche sur l'indice composite peuvent toutefois présenter d'importantes différences sous-jacentes en fonction des indicateurs mobilisés. Si l'on peut donc supposer, à raison, que les valeurs basses de l'indice représentent un cumul de valeurs basses des indicateurs qui le composent, il n'est pas aisé de savoir lesquels et en quelle proportion.
+
+Cette critique peut être caractérisée d'excès de synthèse et nuit à une véritable compréhension de la situation, et ce en raison de la nature composite de l'indice. Pour l'IDH, @srinivasan_1994 considère que l'indice pose en effet des problèmes conséquents de comparaison dans l'espace et le temps. De plus, des inférences sur les questions de développement ou de politiques peuvent difficilement être faites en se basant exclusivement sur l'IDH. Ce type d'indice souffre alors d'une focalisation sur la classification que l'indice crée, en particulier autour de ses valeurs extrêmes, et informe finalement très peu sur la majorité des individus classés, ce qu'une classification ascendante hiérarchique permet généralement de faire.
+
+### Une échelle linéaire relativiste qui fait tendre vers un unique "idéal".
+
+La pratique de la normalisation pour rendre comparables des indicateurs non commensurables nécessite de traduire les valeurs initiales des indicateurs en une échelle située entre 0 et 1. Après avoir réalisé la moyenne réunissant les différents indicateurs, un unique département (la Guyane) possède le pire score. À l'inverse, un unique département (la Haute-Savoie) représente le meilleur scénario, tandis que l'ensemble des autres départements se positionne en fonction de ces deux valeurs extrêmes. Ceci peut poser des problèmes sur des comparaisons longitudinales d'un même indice ; il suffit par exemple que la Haute-Savoie améliore davantage sa situation pour diminuer le score des autres départements.
+
+Pour différentes raisons, il est possible de considérer également que la première ou la dernière observation du classement n'est pas un idéal utile vers lequel tendre ou s'éloigner. Les cas aberrants peuvent s'expliquer par des traits structurels qui les rendent finalement incomparables à la majorité des observations.
+
+En conséquence, il est devenu fréquent, dans l'usage, de lire ces indices sous la forme d'un classement, même si l'écart entre les positions varie entre elles. Par exemple, il existe un plus grand écart sur l'indice entre Mayotte (100ᵉ position) et la Guadeloupe (99ᵉ) qu'entre la Guadeloupe et la Haute-Saône (71ᵉ). Le classement, en gommant la distance entre les observations, permet de maintenir en apparence la validité de la comparaison réalisée.
+
+# Le front de Pareto
+
+Selon nous, le front de Pareto vient répondre aux critiques illustrées précédemment. Cette nouvelle approche nous permet de décrire l'inégalité de la distribution de l'ensemble des indicateurs de façon synthétique, tout en proposant une inférence sur le rôle de chaque indicateur par rapport à un objectif plus réaliste pour chaque observation.
+
+## Contexte théorique
+
+Malgré son caractère éponyme, le front de Pareto n'a pas été développé par l'économiste et sociologue italien Vilfredo Pareto (1848-1923). Le front est une synthèse et une adaptation aux besoins de l'ingénierie, des mathématiques, et en particulier dans la sous-discipline des optimisations multi-objectifs. Ce champ disciplinaire attribue au penseur italien la paternité de l'optimisation d'objectifs conflictuels [@ehrgottMulticriteriaOptimization2005]. L'optimisation de Pareto s'oppose par nature à une optimisation lexicographique. Dans la première, il n'existe pas d'ordre de préférence des critères sélectionnés, contrairement à la seconde.
+
+Si cette synthèse mathématique a permis le développement de nouveaux outils pouvant être utiles aux sciences humaines et sociales, ceux-ci se retrouvent en l'état décontextualisés de leur origine disciplinaire. Nous souhaitons ici retracer un lien entre la fonction d'optimisation de l'outil et son contexte théorique validant son intérêt scientifique dans les humanités.
+
+### De l'ophélimité à l'utilité
+
+Vilfredo Pareto entend établir deux strates d'analyse de la société. La première reposant sur un modèle d'économie pure, la seconde sur un travail plus empirique sur la société établi par la sociologie. Dans l'économie pure, l'ophélimité renvoie au plaisir individuel, à l'utilité subjective qu'un individu va tirer d'un bien ou d'un service à un moment et à un endroit précis dans un contexte de rationalité absolue. Dans l'abstraction de ce modèle, le but déclaré de l'économie est la maximisation de l'ophélimité de la collectivité, une situation qu'il est impossible d'évaluer empiriquement. Les ophélimités étant subjectives, une théorie générale de celles-ci ne peut pas établir quelles sont celles à satisfaire. De plus, le concept ne sert qu'au sein de l'économie pure, en empêchant logiquement l'agrégation des ophélimités qui suivrait un principe d'unanimité de ce qui est apprécié.
+
+L'ophélimité est, dans le contexte de la littérature économique néoclassique, conjointe à celle d'utilité. Mais Vilfredo Pareto emploie spécifiquement l'ophélimité dans l'économie pure, qui ne peut s'appliquer qu'aux individus. Il devient donc possible de considérer l'utilité d'une collectivité spécifique ou de l'ensemble du collectif.
+
+"*Supposons une collectivité en des conditions telles qu'il n'y ait pour elle d'autre choix que d'être très riche avec une grande inégalité de revenus pour ses membres, ou bien d'être pauvre avec des revenus presque égaux, la recherche du maximum d'utilité de la collectivité peut faire approcher du premier état ; celle du maximum pour la collectivité peut faire approcher du second*"[@paretoTraiteSociologieGenerale1917].
+
+Pour lui, la préférence pour une situation ou l'autre n'est déterminable que par le sentiment. En ce sens, il s'agit d'un choix politique sur la distribution de l'utilité dans la société. Cette approche révèle l'importance de savoir, au-delà de l'usage de l'outil, ce que nous choisissons d'optimiser. D'après @berthonnetDestinsCroisesMaximum2023, Pareto envisageait l'utilité comme un outil descriptif des choix réalisés par les gouvernements, mais aussi comme un critère normatif à l'échelle individuelle. En effet la distribution des utilités permet d'expliquer *a posteriori* les choix d'un gouvernement en identifiant ce qu'il valorise.
+
+Historiquement, l'utilité des individus, et son optimisation, devient un indicateur important d'analyse politique et économique, lié également aux questions de bien-être. Si le concept d'utilité n'englobe pas tous les aspects de l'humanité, l'acte d'en rechercher la satisfaction de façon efficace ou de l'optimiser apporte intrinsèquement un caractère normatif à l'analyse. Celui-ci est le plus souvent nécessaire, même dans le contexte de la recherche, pour résoudre des problèmes d'allocation, pour analyser les inégalités ou pour évaluer le comportement des institutions publiques.
+
+Nous faisons le lien ici avec la littérature de la justice sociale et spatiale, qui, confrontée au besoin d'arbitrer des situations conflictuelles, ne peut s'éloigner d'outils d'analyse normatifs. Pour @morange_2018, "*manier la notion de justice, un terme qui relève d’une certaine économie morale, permet en général de marquer politiquement un discours, de le situer du côté d’une parole critique. Le plus souvent, elle contient une dimension normative, c’est-à-dire que les auteurs qui l’emploient fondent leur critique sur un jugement de valeur à propos des situations observées.*". Parce que l'utilité est conçue de telle manière que son augmentation est forcément positive, tous les outils qui s'y lient poursuivent son optimisation, apportant un ensemble d'outils normatifs qu'il est possible de déployer dans d'autres domaines.
+
+### De l'optimum au front
+
+Malgré la dimension sociologique importante à l'optimum d'utilité, le concept s'est diffusé majoritairement parmi les économistes. L'histoire de la pensée économique ne permet pas de retracer exactement comment celui-ci s'est diffusé dans les autres disciplines scientifiques. Si l'optimum de Pareto a pu intéresser tout particulièrement les économistes industriels, il s'est ensuite retrouvé au sein de l'ingénierie dont les développements ont fait émerger le front de Pareto. Celui-ci peut peser sur les choix de consommation : quel modèle de voiture ou quel smartphone maximise à la fois l'autonomie, le prix et la puissance de calcul? Ceci se rapporte finalement à la volonté de maximiser l'ophélimité. Mais ses usages sont aussi techniques et industriels, permettant de comparer différents choix de design selon les objectifs poursuivis. @wangApplicationAnalysisMethods2017 présente de nombreux exemples tels que la gestion de la chaîne logistique pour des produits agroalimentaires, @limleamthongRigorousAnalysisPareto2017 l'utilise pour envisager différents scénarios du réseau électrique britannique. Le front de Pareto n'est qu'une composante du domaine de l'optimisation multicritère, mais il décrit la simple poursuite d'un choix "efficace" parmi les options possibles. Pour un consommateur, un choix est efficace s'il n'existe pas d'alternative moins chère pour une qualité identique, ou d'alternative de meilleure qualité pour le même prix.
+
+Pour formaliser, le front de Pareto décrit l'ensemble des situations non dominées selon les critères établis. Dans notre analyse, un département sera dit non dominé s'il n'existe pas de solution pour tout indicateur $i$ à optimiser, l'observation (dans notre cas le département) $x_1$ est inférieure à une autre $x_n$ :
+
+$$
+\forall_i, f_i(x_1)<f_i(x_n)
+$$
+
+## Mise en pratique
+
+### Optimisation à deux critères
+
+Il est classique de représenter un front de Pareto optimisant deux critères en les plaçant sur l'abscisse et l'ordonnée d'un graphique, avec un "escalier" représentant le front. Dans un premier temps, nous pouvons calculer le front de Pareto pour deux de nos indicateurs utilisés. Le package `rPref`, permet de simplement optimiser nos variables grâce aux fonctions `high()` et `low()`, qui optimisent respectivement autour de la valeur maximale d'une variable et de la valeur minimale.
+
+Le package comprend l'optimisation de plusieurs variables en en faisant le produit (`*`), nous verrons plus loin l'usage d'un autre opérateur pour hiérarchiser l'optimisation. Dans l'exemple suivant, nous optimisons "vers le bas" la variable `chom` puisque sa valeur minimale décrit le département ayant la plus grande part de la population au chômage, nous optimisons également "vers le haut" le niveau de vie. La fonction `psel()` permet d'extraire les observations sur le front de Pareto.
+
+Comme l'optimisation est réalisée pour chaque critère pris individuellement, il n'est pas nécessaire d'utiliser la forme normalisée de ces variables[^index-3].
+
+[^index-3]: Utiliser la forme normalisée n'impacte en rien le résultat, en revanche elle nous permettrait de tout optimiser dans le même sens puisque nous avons déjà pris en compte cet élément au moment de la normalisation
+
+```{r fig.align="center", fig.cap="Figure 3: Représentation en escalier du front de Pareto", fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+#| label: Représentation en escalier
+#Optimisation 
+pref<-low(df$chom) * high(df$ndv)
+dfpref<-psel(df, pref)
+#Création d'une variable d'appartenance au front de Pareto
+df$fp<-ifelse(df$code_insee %in% dfpref$code_insee,
+              "Sur le front de Pareto", 
+              "Département non optimal")
+
+#Graphique du front de Pareto
+g<-ggplot(df, aes(x=log(chom), y=ndv, colour = fp))+ #<12>
+  geom_point_interactive(aes(tooltip = libellé), size = 2, alpha = 0.8)+
+  geom_step(data = dfpref, colour = "blue")+
+  scale_color_manual(values = c("black","blue"))+
+  theme_minimal()+
+  theme(legend.position = "bottom")+
+  labs(x = "Taux de chômage (log)",
+       y = "Niveau de vie",
+       colour = element_blank())
+
+girafe(ggobj = g)
+```
+
+12. Le taux de chômage est représenté en log pour faciliter la lecture.
+
+Le front représente donc la courbe optimale, les cinq départements qui sont sur celle-ci ont le taux de chômage le plus faible, ne pouvant diminuer qu'à l'avantage d'un niveau de vie plus élevé. Si l'on considère ces deux critères comme tout à fait égaux en termes d'importance sociale (ceci pouvant être largement débattu), le front nous montre la pluralité des meilleurs scénarios. Les extrémités du front représentent les instances les plus radicales de la distribution. D'un côté, Paris présent le plus haut niveau de vie en échange du taux de chômage le plus élevé également? De l'autre, le Cantal présente le niveau de vie le plus faible de l'optimum associé au taux de chômage le plus faible de France.
+
+Dans le contexte de l'optimisation multicritère, cet escalier désigne l'ensemble des solutions "efficaces", bien-sûr, dans notre cas, une telle interprétation n'a pas de sens. En effet, les départements que nous souhaitons décrire ne sont pas des "solutions" à un "problème" d'optimisation, ils constituent cependant des "exemples" d'une distribution de "ressources" qui peut être efficace ou non. Ce manque d'efficacité illustre bien souvent des situations d'inégalités territoriales profondes. Dans notre exemple, la majorité des départements gravitent autour d'une situation moyenne, relativement proche du front de Pareto, mais La Réunion, la Guyane, la Guadeloupe, et tout particulièrement Mayotte présentent un profil tout à fait aberrant et attestent du "retard" que @goujon_2009 avait mesuré lors du calcul d'un IDH régional.
+
+Cet escalier en tant que tel ne vise ni à synthétiser l'information, ni à expliquer la structure de la variance de ses indicateurs. Le fait de placer ces deux indicateurs sur ces axes doit également nous inviter à réfléchir sur leur pertinence et leur équivalence morale et matérielle.
+
+### Optimisation des composantes de l'indice
+
+Après avoir pu illustrer le front de Pareto sur deux critères, nous pouvons créer une optimisation reprenant l'ensemble des indicateurs de notre indice composite. Nous utilisons le même processus d'optimisation en ajoutant les indicateurs non utilisés, en respectant la direction "bénéfique" des indicateurs. Comme nous utilisons plus de deux indicateurs, la représentation graphique du front devient plus complexe (chaque indicateur ajoutant une dimension de représentation), nous pouvons cependant cartographier les départements s'étant retrouvés sur le front.
+
+```{r message=FALSE, warning=FALSE}
+#| label: Appartenance au front de Pareto
+#Optimisation
+pref<-low(df$scol)*high(df$ndv)*low(df$chom)*low(df$suro)*low(df$eprox)*low(df$morti)
+dfpref<-psel(df, pref)
+
+#Création d'une variable d'appartenance au front de Pareto
+df$fp<-ifelse(df$code_insee %in% dfpref$code_insee,
+              "Sur le front de Pareto", 
+              "Département non optimal")
+
+
+```
+
+::: {.panel-tabset .nav-pills}
+## Métropole
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 4a: Départements optimaux - France métropolitaine.", fig.height=10, fig.width=15}
+#| label: Appartenance au front - Métropole
+mf_typo(df %>% filter(code_insee %in% met), 
+        var = "fp",
+        pal = c("grey","blue2"),
+        leg_size = 2,
+        leg_val_cex = 2,
+        leg_title_cex = 2,
+        leg_title = "Situation du département")
+mf_inset_on(df, pos = "topleft")#Crée un cadre pour l'île-de-France
+mf_typo(df %>% filter(code_insee_de_la_region == "11"),
+         var = "fp", 
+         pal = c("grey","blue2"),
+         leg_pos = NA)
+mf_inset_off()
+```
+
+## France entière
+
+```{r fig.align="center", fig.cap="Figure 4b: Départements optimaux - France entière", fig.height=10, fig.width=15, warning=FALSE}
+#| label: Appartenance au front - France entière
+carto_typo(x = df,
+           var = "fp",
+           pal = c("grey","blue"))
+```
+:::
+
+En comparant cette nouvelle carte avec celle de l'indice composite, des similarités émergent. Il est en effet normal de retrouver sur le front les départements ayant généralement une valeur élevée de l'indice. L'appartenance à une situation optimale n'assure pas cependant une excellente place au classement : la Lozère est un département optimal ayant la valeur de l'indice à 0,62, soit la 94e position. Ceci semble indiquer que le département est à "l'extrêmité" du front, comme c'était le cas pour Paris et le Cantal dans l'analyse précédente. Ceci arrive généralement lorsque la tendance d'un seul indicateur s'oppose au reste[^index-4]. Malgré cette valeur relativement faible de l'indice, la Lozère présente un compromis tel qu'aucun autre département ne la dépasse sur l'ensemble de ses indicateurs.
+
+[^index-4]: Dans le cas de la Lozère, il s'agit du faible chômage
+
+Il reste intéressant de constater l'émergence de clusters géographiques. La Bretagne et le Pays de la Loire, le nord de l'Occitanie, l'est de l'Auvergne-Rhône-Alpes et certains départements frontaliers à l'est semblent bénéficier de compromis intéressants sur nos indicateurs. Enfin, Paris et la partie ouest de l'Île-de-France représentent un cluster isolé.
+
+### Hiérarchisation de l'optimum
+
+L'ensemble des départements ainsi marqués en bleu, représentant près de la moitié de l'ensemble, sont dits "non dominés" et illustrent les situations plurielles où l'augmentation d'un indicateur n'est observable que si la valeur d'un autre diminue. Les variations des indicateurs pour chacun de ces départements soulèvent naturellement la question de la pertinence du compromis. Vaut-il mieux, en effet, habiter dans les Hauts-de-Seine, dans lesquels la proximité aux équipements y est la meilleure, même si cela demande d'être confronté à un problème de suroccupation du logement ? Le recours à l'optimum de Pareto donne strictement le même poids à chaque critère utilisé. Il peut être utile pour diverses raisons de ne pas appliquer une pondération égalitaire. L'analyse peut être affinée :
+
+-   en limitant le nombre de critères à optimiser,
+-   en exigeant qu'une certaine valeur pour un indicateur soit atteinte,
+-   en introduisant un ordre lexicographique aux différents indicateurs, nécessitant l'optimisation de certains critères avant d'optimiser les suivants. Le package `rPref` permet cette flexibilité.
+
+Nous donnons un exemple de la forme que pourrait prendre une version hiérarchisée du front de Pareto. Nous pouvons faire l'argument que la mortalité infantile constitue le critère le plus important ou le plus urgent à régler, et qu'il serait donc inacceptable de faire un compromis sur ce critère spécifique. La moyenne entre les départements pour cet indicateur est de 3,8 décès pour 1000 naissances. La fonction `true()` nous permet de réaliser l'optimisation uniquement parmi les territoires au-dessus de la moyenne[^index-5], l'opérateur `&` établit que ce critère est prioritaire et doit être satisfait en premier. Ensuite, nous proposons d'établir le niveau de vie et la suroccupation du logement comme des critères plus importants que le reste des indicateurs, nous donnant l'optimisation suivante :
+
+[^index-5]: La fonction `true()`, comprend également les conditions booléennes.
+
+```{r message=FALSE, warning=FALSE}
+#| label: Ordre lexicographique
+#Optimisation
+pref<-true(df$morti>3.8) & low(df$suro)*high(df$ndv) & low(df$chom)*low(df$scol)*low(eprox)
+dfpref<-psel(df, pref)
+
+#Création d'une variable d'appartenance au front de Pareto
+df$fp<-ifelse(df$code_insee %in% dfpref$code_insee,
+              "Département optimal", 
+              "Département non optimal")
+
+
+```
+
+::: {.panel-tabset .nav-pills}
+## Métropole
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 5a: Départements optimaux (ordre lexicographique) - France métropolitaine.", fig.height=10, fig.width=15}
+#| label: Ordre lexicographique - Métropole
+mf_typo(df %>% filter(code_insee %in% met), 
+        var = "fp",
+        pal = c("grey","blue2"),
+        leg_size = 2,
+        leg_val_cex = 2,
+        leg_title_cex = 2,
+        leg_title = "Situation du département")
+mf_inset_on(df, pos = "topleft")
+mf_typo(df %>% filter(code_insee_de_la_region == "11"),
+         var = "fp", 
+         pal = c("grey","blue2"),
+         leg_pos = NA)
+mf_inset_off()
+```
+
+## France entière
+
+```{r fig.align="center", fig.cap="Figure 5b: Départements optimaux (ordre lexicographique) - France entière.", fig.height=10, fig.width=15, warning=FALSE}
+#| label: Ordre lexicographique - France entière
+carto_typo(x = df,
+           var = "fp",
+           pal = c("grey","blue"))
+```
+:::
+
+La mise en place de priorités dans notre analyse mène à une importante requalification du front optimal. D'abord, les critères étant devenus plus restrictifs, les compromis efficaces sont bien moins nombreux, et les départements sur ce nouveau front ne l'étaient pas tous sur le précédent. En plus de notre critère strict de mortalité infantile sous la moyenne des départements, le critère prioritaire de suroccupation du logement a permis d'exclure des départements dans lesquels le niveau de vie est le plus élevé, en identifiant ces compromis comme inefficients.
+
+Cette approche permet donc une certaine flexibilité pour établir un compromis "efficace" (le résultat n'est alors plus un front de Pareto), et peut notamment compenser un trop grand nombre d'observations sur le front dans le cas où de nombreux indicateurs sont utilisés. Pour la suite de l'article, nous n'utiliserons pas de hiérarchisation sur nos indicateurs, mais toutes les étapes suivantes peuvent être réalisées en incorporant cette approche.
+
+### Calcul des uplets
+
+Le package `rPref` donne des possibilités supplémentaires qu'il est intéressant de mentionner. Le front de Pareto représente l'ensemble des observations non dominées. Si les observations optimales sont ensuite retirées, il est possible de calculer un nouveau front de Pareto, interprétable comme le seuil optimal suivant. Ces fronts successifs (ou uplets) nous donnent une idée de l'éloignement d'une observation à la situation optimale. Cette procédure peut être utile pour classer les observations et permettre de créer un échantillon parmi les situations non optimales afin d'en faire des comparaisons.
+
+Sa réalisation nécessite d'ajouter un paramètre `top =` à la fonction `psel`. Elle récupère le nombre $k$ indiqué d'observations les plus proches du front. Ce calcul est non déterministe : si le nombre demandé est inférieur au nombre d'observations sur le front, celles retournées le sont de façon aléatoire. En revanche, s'il est plus grand, les observations retournées seront d'abord issues du premier uplet (le front de Pareto), puis du second, etc. Pour obtenir toutes les observations, le paramètre `top =` doit être égal ou supérieur au nombre total d'observations (utiliser $Inf$ fonctionne aussi). Le niveau de l'uplet est désigné par une nouvelle colonne `.level`. Enfin, si le besoin existe de limiter un nombre trop important d'uplets, nous pouvons changer l'opérateur `*` par `|`. Ceci revient à exiger une dominance stricte des indicateurs sur les autres, plutôt que de tolérer une égalité. Graphiquement, cette méthode évite que les "escaliers" se croisent par moments.
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 6: Représentation en escalier des uplets.", fig.height=10, fig.width=10}
+#| label: Uplets
+#Graphique d'illustration des uplets optimaux
+
+g<-psel(df,
+     p = low(df$eprox) | low(df$morti),
+     top = nrow(df)) %>%
+  ggplot(aes(x = eprox,
+             y = morti,
+             colour = factor(.level)))+
+  geom_point_interactive(aes(tooltip = libellé), size = 2)+
+  geom_step(direction = "hv")+
+  theme_minimal()+
+  labs(x = "Distance aux équipements",
+       y = "Mortalité infantile",
+       colour = "Niveau d'optimalité")
+
+girafe(ggobj = g)
+
+
+#Optimisation
+pref<-high(ndv, df = df) * low(suro) * low(morti) * low(scol) * low(chom) * low(eprox) #<13>
+dfpref<-psel(df, pref, top = nrow(df))
+```
+
+13. Une autre manière de coder l'optimisation
+
+::: {.panel-tabset .nav-pills}
+## Métropole
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 7a: Niveaux d'optimisations des départements (upelts) - France métropolitaine.", fig.height=10, fig.width=15}
+#| label: Uplets - Métropole
+mf_typo(dfpref %>% filter(code_insee %in% met),
+        var = ".level",
+        pal = "RdYlBu",
+        leg_size = 2,
+        leg_val_cex = 2,
+        leg_title_cex = 2,
+        leg_title = "Seuil d'optimisation")
+```
+
+En se limitant à la métropole, les niveaux d'uplets affectés par les départements d'outre-mer n'apparaissent pas.
+
+## France entière
+
+```{r fig.align="center", fig.cap="Figure 7b: Niveaux d'optimisations des départements (uplets) - France entière.", fig.height=10, fig.width=15, warning=FALSE}
+#| label: Uplets - France entière
+carto_typo(x = dfpref,
+      var = ".level",
+      pal = "RdYlBu")
+```
+:::
+
+Le résultat ne donne pas une copie générale de l'indice composite, même si de nombreuses similarités existent. L'appartenance à un uplet spécifique ne garantit pas un plus haut niveau sur l'indice sur l'uplet suivant, même si c'est la tendance générale que l'on peut observer (figure 8). Ce type de classification peut permettre de faire émerger des groupes diversifiés tout en assurant une position moyenne recherchée au sein de la population générale. Nous pouvons pour cela comparer les départements classifiés avec leur niveau de l'indice composite que nous avons créé.
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 8: Relation entre le niveau d'optimisation et la valeur de l'indice composite.", fig.height=5, fig.width=8}
+#| label: Niveau de l'indice et d'optimisation
+ggplot(dfpref, aes(x= as.factor(.level), y = indice_n, fill = as.factor(.level)))+
+  geom_boxplot()+
+  scale_fill_brewer(palette = "RdYlBu", direction = -1)+
+  theme_minimal()+
+  theme(legend.position = "none")+
+  labs(x = "Niveau d'optimalité",
+       y = "Niveau de l'indice")
+```
+
+À ce stade de l'analyse, nous avons montré que le front de Pareto représente une alternative intéressante pour représenter des espaces favorisés à l'instar des valeurs hautes d'un indice composite. La hiérarchisation des critères permet en outre d'élaborer une optimisation personnalisée pouvant répondre à des besoins d'identification dont d'autres thématiques en sciences sociales pourraient profiter.
+
+Dans la suite de l'article, nous utilisons le front de Pareto pour orienter l'analyse sur les situations non optimales, en identifiant les départements les plus éloignés et en proposant une méthode pour établir une distance multidimensionnelle entre chaque observation et un compromis efficace le plus proche.
+
+# Analyser les situations non optimales
+
+## Le plancher de Pareto
+
+L'identification des solutions efficaces présente un intérêt limité pour l'analyse spatiale : s'il peut être pertinent d'identifier les meilleures observations pour possiblement s'en inspirer, notre analyse ne nous indique pas quels départements sont le plus en difficulté sur les indicateurs que nous avons mobilisés. Pour y pallier, il nous suffit d'inverser le sens de l'optimisation, en calculant une forme de plancher où aucune diminution des indicateurs n'est observable sans que l'on trouve un autre indicateur plus élevé. C'est une situation dans laquelle les départements sont entièrement dominés par les autres. Ceci peut être illustré en ajoutant le plancher de Pareto à une optimisation à deux critères. Pour rappel, il nous faut choisir l'orientation de l'optimisation selon ce qu'exprime l'indicateur.
+
+```{r fig.align="center", fig.cap="Figure 9: Représentation en escalier du front et du plancher de Pareto.", fig.height=10, fig.width=10, message=FALSE, warning=FALSE}
+#| label: Escalier plancher de Pareto
+#Optimisation 
+pref_fp<-low(df$eprox)*low(df$morti) #Optimisation au front de Pareto
+pref_pp<-high(df$eprox)*high(df$morti) #Optimisation au plancher de Pareto (inversion du sens de l'optimisation)
+
+dffp<-psel(df, pref_fp) #Front de Pareto
+dfpp<-psel(df, pref_pp) #Plancher de Pareto
+
+#Création d'une variable d'appartenance
+df$fpp<-ifelse(df$code_insee %in% dffp$code_insee,
+               "Sur le front de Pareto",
+               ifelse(df$code_insee %in% dfpp$code_insee,
+                      "Sur le plancher de Pareto",
+                      "Département non optimal"
+               ))
+
+#Graphique
+g<-ggplot(df, aes(x=eprox, y=morti, colour = fpp))+
+  geom_point_interactive(aes(tooltip = libellé), size = 2, alpha = 0.8)+
+  geom_step(data = dffp, colour = "blue2")+
+  geom_step(data = dfpp, colour = "red2")+
+  scale_color_manual(values = c("black","blue2","red2"))+
+  theme_minimal()+
+  theme(legend.position = "bottom")+
+  labs(x = "Distance aux équipements",
+       y = "Mortalité infantile",
+       colour = element_blank())
+
+girafe(ggobj = g)
+```
+
+Dans ce résultat, les fronts et planchers de Pareto sont systématiquement distincts. Dans les deux cas, quatre départements se trouvent dans des situations "efficaces". Sur le front, ceux-ci présentent la meilleure proximité aux équipements et la plus faible mortalité infantile. Sur le plancher, quatre départements connaissent une situation très variable mais systématiquement pire que le reste des départements français. Deux départements d'outre-mer, Mayotte et la Guyane, se distinguent par une mortalité infantile très forte, tandis que deux départements métropolitains, la Lozère et la Creuse, se distinguent par un éloignement aux équipements élevés.
+
+Le plancher de Pareto nous permet d'identifier les observations connaissant la pire situation. Si l'analyse précédente nous permettait d'identifier les départements pour lesquels les indicateurs agrégés montraient l'absence d'urgence, le plancher illustre parfaitement le contraire et invite largement à nous pencher sur la situation de ces territoires et de ceux proches du plancher.
+
+Enfin, la multiplication des critères d'optimisation peut générer des situations dans lesquelles une observation se situe à la fois sur le plancher et sur le front de Pareto. Ceci représente des cas particuliers, où le compromis entre les indicateurs est suffisamment unique pour placer l'observation à la fois dans une situation maximale et minimale.
+
+Nous pouvons générer un exemple de cette situation à partir de nos données, en optimisant les indicateurs sur la mortalité infantile, l'éloignement aux équipements et la suroccupation du logement. Le département de la Manche (en violet sur la figure 10) est ici simultanément sur le front et sur le plancher du fait d'une suroccupation du logement particulièrement faible. Tandis que le front de Pareto représente le champ du possible en termes de bien-être, et le plancher de Pareto représente une situation minimale, les territoires étant conjointement optimaux représentent des cas particuliers dont les variations des indicateurs les placent "à la marge" du reste, souvent porté par un seul indicateur.
+
+```{r echo=F, fig.align="center", fig.cap="Figure 10 : Front et plancher de Pareto sur trois indicateurs.", fig.height=12, fig.width=12,}
+#| label: Graphique en 3D
+
+knitr::include_graphics("figures/3d_graph.gif")
+```
+
+Avec la multiplication des indicateurs, ce cas de figure devient plus courant puisque nous multiplions les dimensions par lesquelles les départements peuvent se distinguer. Cette situation nous indiquera toujours la présence d'une valeur extrême sur un des indicateurs choisis. Nous pouvons reproduire l'analyse en utilisant l'ensemble des indicateurs, et en cartographiant le résultat.
+
+::: {.panel-tabset .nav-pills}
+## Métropole
+
+```{r fig.align="center", fig.cap="Figure 11a : Front et plancher de Pareto - France métropolitaine.", fig.height=10, fig.width=15, message=FALSE, warning=FALSE}
+#| label: Typologie de Pareto - Métropole
+#Optimisation
+pref_fp<-high(ndv, df = df)*low(suro)*low(morti)*low(scol)*low(chom)*low(eprox)
+
+pref_pp<-low(ndv, df = df)*high(suro)*high(morti)*high(scol)*high(chom)*high(eprox)
+
+dffp<-psel(df, pref_fp)
+dfpp<-psel(df, pref_pp)
+
+
+
+#Cartographie des Départements optimaux
+mf_map(df %>% filter(code_insee %in% met))
+mf_map(dffp %>% filter(code_insee %in% met),
+       add = T,
+       col = "blue2")
+mf_map(dfpp %>% filter(code_insee %in% met),
+       add = T,
+       col = "red2")
+mf_map(dffp[which(dffp$code_insee %in% dfpp$code_insee),],
+       add = T,
+       col = "#800080")
+mf_legend(type = "typo",
+          val = c("Sur le front de Pareto",
+                  "Sur le plancher de Pareto",
+                  "Sur le front et le plancher de Pareto",
+                  "non optimal"),
+          title = NA,
+          pal = c("blue2","red2","#800080","grey"),
+          size = 2)
+
+```
+
+## France entière
+
+```{r fig.align="center", fig.cap="Figure 11b : Front et plancher de Pareto - France entière", fig.height=10, fig.width=15, message=FALSE, warning=FALSE}
+#| label: Typologie de Pareto - France entière
+
+#Optimisation
+pref_fp<-high(ndv, df = df)*low(suro)*low(morti)*low(scol)*low(chom)*low(eprox)
+
+pref_pp<-low(ndv, df = df)*high(suro)*high(morti)*high(scol)*high(chom)*high(eprox)
+
+dffp<-psel(df, pref_fp)
+dfpp<-psel(df, pref_pp)
+
+#Création d'une variable d'attribution
+
+df$fp<-"non optimal"
+df$fp[which(df$code_insee %in% dffp$code_insee)]<-"Sur le front de Pareto"
+df$fp[which(df$code_insee %in% dfpp$code_insee)]<-"Sur le plancher de Pareto"
+df$fp[
+  which(
+    df$code_insee %in% dffp$code_insee[which(dffp$code_insee %in% dfpp$code_insee)]
+  )
+  ]<-"Sur le front et le plancher de Pareto"
+
+#Cartographie
+
+carto_typo(x = df,
+           var = "fp",
+           pal = c("grey","blue2","#800080","red2"))
+
+```
+:::
+
+Ces différentes optimisations donnent une perspective plus détaillée de la France. Les départements sur le plancher suivent en partie la diagonale du vide en métropole, rejoints par Mayotte et la Guyane. Les départements conjointement sur le front et le plancher sont le Cantal, l'Aveyron, la Lozère et la Corse-du-sud. Ces trois premiers se situent également au croisement du front et du plancher dans un sens géographique, puisqu'ils sont respectivement entourés de départements dans ces situations. Le Cantal se distingue par son niveau de chômage le plus faible de France, et la Corse-du-sud par la plus faible mortalité infantile, l'Aveyron et la Lozère combinent une proximité aux équipements faible, une mortalité infantile élevée et le reste des indicateurs comparativement très favorables.
+
+En regardant ces départements de plus près, ils tendent à se distinguer des autres catégories en combinant un taux de chômage significativement faible et une proximité aux équipements plutôt mauvaise. Les départements sur le front de Pareto voient leurs indicateurs plutôt élevés, mais leur variance est la plus faible (et le niveau moyen le plus élevé) sur le niveau des diplômes, le niveau de vie et la suroccupation du logement. Les départements sur le plancher de Pareto ont des variances très hétérogènes entre leurs indicateurs, mais le niveau de vie et le taux de chômage semblent être les indicateurs les plus discriminants.
+
+Les départements sur le front incarnant les scénarios efficaces, il est difficile de suggérer sur quels aspects leur situation peut être améliorée. En revanche, un département sur le plancher nous informe d'un besoin d'amélioration tous azimuts, bien que certains besoins puissent être plus urgents. Les départements situés sur les deux tendent à nécessiter un progrès sur un ou quelques indicateurs spécifiques. Dans tous les cas cependant, ces besoins peuvent être hiérarchisés grâce au front de Pareto.
+
+## Distance à l'optimum
+
+En l'état, ces analyses offrent une description originale mais peu fonctionnelle d'un territoire. En effet, savoir quel département se place sur un optimum n'apporte que l'information très synthétique qu'il se distingue des autres, d'une façon positive ou négative selon ce que l'on mesure. Dans un indice composite, la situation idéale est définie par la meilleure observation, étant en haut du classement. C'est aussi vers celle-ci que toutes les autres doivent instinctivement tendre. Cependant, la meilleure observation possède souvent un profil aberrant, notamment parce qu'elle jouit de circonstances sociales, économiques ou géographiques particulières. Le front de Pareto permet de multiplier les scénarios idéaux vers lesquels les territoires peuvent tendre à partir du moment où ils ressemblent davantage à un scénario plutôt qu'à un autre.
+
+La ressemblance entre les départements peut s'exprimer sous la forme d'une distance virtuelle fondée sur les indicateurs que nous mobilisons. Celle-ci peut être pensée comme une distance euclidienne entre un point non optimal et un point sur le front de Pareto, comme sur la figure 9. En mobilisant six indicateurs, la distance que nous voulons calculer est donc multidimensionnelle. Un département non optimal aura pour département optimal le plus "ressemblant", celui dont la somme des distances des indicateurs est la plus faible.
+
+### Calcul de la distance
+
+Puisque nous souhaitons pouvoir additionner et comparer les distances entre deux départements sur différents indicateurs, il est important de rendre ces distances commensurables. Pour compenser les différences de variance entre chaque indicateur, une distance calculée peut être rapportée à l'écart-type de l'indicateur respectif.
+
+Dans l'étape suivante, nous construisons une table des départements non optimaux, ce qui inclut les départements situés sur le plancher de Pareto mais également ceux qui sont conjointement sur le plancher et le front, leur situation particulière n'étant probablement pas enviable. Nous construisons une seconde table rassemblant les départements sur le front de Pareto afin de calculer les distances entre les éléments de la première table et de la seconde.
+
+```{r}
+#| label: Matrice des distances
+#On reproduit l'optimisation précédente.
+
+pref_fp<-high(ndv, df = df)*low(suro)*low(morti)*low(scol)*low(chom)*low(eprox)
+
+pref_pp<-low(ndv, df = df)*high(suro)*high(morti)*high(scol)*high(chom)*high(eprox)
+
+dffp<-psel(df, pref_fp)
+dfpp<-psel(df, pref_pp)
+
+#On garde en mémoire dans un vecteur de texte les variables utilisées et le sens des optimisations produites pour le front de Pareto.
+vars<-c("ndv","suro","morti","scol","chom","eprox")
+optim<-c("high","low","low","low","low","low")
+
+#Retrait des départements sur le plancher de Pareto des données du front 
+
+dffp <- dffp[-which(dffp$code_insee %in% dfpp$code_insee),]
+
+#On place le reste des département dans un objet distinct
+
+dfno <- df[-which(df$code_insee %in% dffp$code_insee),]
+
+#On conserve les numéros des départements dans l'ordre
+
+dep_dffp <- dffp$code_insee
+dep_dfno <- dfno$code_insee
+
+
+#On retire dans les deux bases les variables superflues
+
+dffp <- dffp[,vars] %>% st_drop_geometry()
+dfno <- dfno[,vars] %>% st_drop_geometry()
+
+#On construit une matrice des distances (vide) entre les départements optimaux et les autres
+
+dist_totale<-matrix(data = NA,
+             nrow = nrow(dfno),
+             ncol = nrow(dffp)) #la matrice mesure la distance totale entre chaque département
+
+dist_valeur<-matrix(data = vector("list", nrow(dfno)*nrow(dffp)),
+             nrow = nrow(dfno),
+             ncol = nrow(dffp)) #La matrice stocke les différences par indicateur entre chaque département
+
+#La distance sera exprimée en nombre d'écarts-type pour chaque indicateur
+
+et<-c(sd(df$scol),
+      sd(df$ndv),
+      sd(df$chom),
+      sd(df$suro),
+      sd(df$eprox),
+      sd(df$morti))
+
+#Une boucle permettra de calculer la distance pour le même indicateur entre chaque couple de départements
+for (x in 1:nrow(dfno)) {
+  for (y in 1:nrow(dffp)) {
+    valeur <- ((dffp[y,]-dfno[x,])/et)
+    
+    dist_totale[x,y] <- valeur %>% 
+      abs() %>% 
+      sum()
+    
+    dist_valeur[x,y]<- list(valeur)
+    
+  }}
+
+
+```
+
+La matrice obtenue donne la distance virtuelle entre chaque département non optimal $x_i$ et le département optimal $y_i$. Le point le plus proche pour chaque département $x_i$ est donc la valeur minimale $y_i$ calculée. Après avoir identifié les départements sur le front associé, nous pouvons récupérer les différences entre chaque indicateur. Cette différence nous permet de déterminer sur quel indicateur ou dimension un département s'éloigne le plus du front de Pareto. Ceci illustre un "besoin prioritaire", ayant la plus grande marge d'amélioration si on considère que chaque indicateur mobilisé est d'importance égale.
+
+```{r}
+#| label: Calcul des distances
+#Calcul de la distance totale minimale.
+
+mins<-dist_totale %>% rowMins()
+
+#Indicateur de la colonne de la matrice des distance associée au minimum.
+
+i<-apply(dist_totale == dist_totale %>% 
+        rowMins(), 
+      1, 
+      function(x){which(x == TRUE)})
+
+#Extrait les valeurs associées au point sur le front le plus proche
+pref_dist<-dist_valeur[cbind(1:nrow(dist_valeur),i)]
+pref_dist<-do.call(rbind.data.frame, pref_dist)
+
+
+
+#Nous pouvons modifier la matrice des distances de telle manière que nous retenons uniquement les indicateurs inférieurs au front de Pareto. Ceci demande d'inverser le sens de la distance selon le sens de l'optimisation.
+
+for (j in 1:ncol(pref_dist)) {
+  for (i in 1:nrow(pref_dist)) {
+    
+    pref_dist[i,j]<-ifelse(optim[j]=="high",
+                           pref_dist[i,j],
+                           -pref_dist[i,j])
+    
+  }
+  
+}
+
+#Une distance négative à ce stade signifie que le département dépasse le front sur un indicateur, ce qui ne représente pas un besoin.
+#(Ceci est possible pour les départements conjointement sur le front et le plancher).
+pref_dist[pref_dist<0]<-0
+
+#Cette fonction nous donne l'indicateur des départements qui les éloigne le plus du front de Pareto.
+
+col_index<-apply(pref_dist == pref_dist %>% 
+  as.matrix() %>% 
+  rowMaxs(), 1, function(x){which(x == TRUE)})
+
+#L'indicateur ayant la plus grande distance pour un département représente un besoin prioritaire.
+
+pref_dist$priori<-colnames(pref_dist)[col_index] %>% as.factor()
+#Pour cartographier le résultat, il faut recréer l'association de nos matrices à l'objet sf.
+
+#création d'une variable du besoin prioritaire pour dffp.
+dffp$priori<-"Aucune priorité"
+#réattribution des numéros de département.
+dffp$code_insee<-dep_dffp
+pref_dist$code_insee<-dep_dfno
+#Les valeurs des variables de dffp doivent être effacées puisqu'elles ne représentent pas les distances comme c'est le cas pour dfno
+dffp[,vars]<-NA
+#Fusion de dffp et dfno.
+pref_dist<-rbind(dffp,pref_dist)
+#Jointure avec l'objet sf.
+pref_dist<-left_join(dep, pref_dist, "code_insee")
+
+```
+
+### Besoin(s) prioritaire(s)
+
+::: {.panel-tabset .nav-pills}
+## Métropole
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 12a : Indicateur prioritaire par département - France métropolitaine", fig.height=10, fig.width=15}
+#| label: Axe prioritaire - métropole
+#La palette de couleur doit être adaptée
+pal2<-c("lightgrey","#e9c46a","#f4a261","#2a9d8f","#264653","#e76f51")
+mf_typo(pref_dist %>% filter(code_insee %in% met), 
+        var = "priori", 
+        pal = pal2,
+        leg_size = 2,
+        leg_val_cex = 2,
+        leg_title_cex = 2,
+        leg_title = "Situation du département")
+```
+
+## France entière
+
+```{r fig.align="center", fig.cap="Figure 12b : Indicateur prioritaire par département - France entière", fig.height=10, fig.width=15, warning=FALSE}
+#| label: Axe prioritaire - France entière
+carto_typo(pref_dist,
+           var = "priori",
+           pal = pal2)
+```
+:::
+
+Notre analyse illustre les besoins prioritaires parmi les six indicateurs que nous avons mobilisés. Les départements sur le front de Pareto ne montrent pas d'axe d'amélioration puisqu'ils représentent les meilleurs scénarios observés en France métropolitaine. La diagonale du vide présente un mélange de priorités orientées sur la proximité aux équipements et le niveau de vie. Ce dernier représente un enjeu marquant des départements d'Outre-mer. La scolarité est prioritaire sur certazins départements de la moitié nord de la France Métropolitaine tandis que la mortalité infantile apparaît comme le défi le plus important pour le Val-de-Marne, la Charente-Maritime et la Haute-Vienne.
+
+Ce diagnostic permet, dans l'immédiat, d'identifier le critère distinguant le plus un département donné d'une situation optimale, si nous pouvons l'interpréter comme désignant l'indicateur le plus "urgent" à régler. Cette simplification ne doit pas poser un voile sur la pluralité des besoins auxquels les départements sont confrontés. De fait, cette représentation n'explicite pas à quel point l'indicateur est prioritaire par rapport aux autres, bien qu'il montre finalement sur quel critère un département se distingue le plus.
+
+Nous pouvons donc tenter de représenter ce détail, en dessinant la pluralité des distances entre les départements et le front de Pareto par l'usage d'une carte en diagrammes. Le package `scatterpie` permet la réalisation de diagrammes intégrés à une carte réalisée avec `ggplot2`. Les diagrammes permettent de montrer la répartition des besoins pour chaque département, et de mettre en lumière des situations où les besoins varient ou bien sont dominés par un indicateur en particulier.
+
+```{r warning=FALSE}
+#| label: Distances relatives
+#coordonnées des centroïdes des départements
+coord<-pref_dist %>% 
+  st_centroid() %>% 
+  st_coordinates() 
+#Association des coordonnées
+pie_df<-cbind(pref_dist,coord)
+
+#Suppression des départements sur le front de Pareto
+pie_df<-pie_df[which(pref_dist$priori != "Aucune priorité"),]
+
+#Variable de la somme des distances
+pie_df$total<-(rowSums(pie_df[,vars] %>% st_drop_geometry()))
+
+```
+
+::: {.panel-tabset .nav-pills}
+## Métropole
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 13a : Cartodiagramme des indicateurs", fig.height=15, fig.width=15}
+
+#| label: Besoins - Métropole
+ggplot(data = pref_dist %>% filter(code_insee %in% met & code_insee_de_la_region != 11)) + 
+  geom_sf() + 
+  geom_scatterpie(aes(x = X, 
+                      y = Y, 
+                      group = as.factor(code_insee)), 
+                  pie_scale = 1,
+                  data = pie_df %>% 
+                    filter(code_insee %in% met & code_insee_de_la_region != 11) %>%
+  st_drop_geometry(),
+                  cols = c("scol","ndv","chom","suro","eprox","morti"),
+                  legend_name = "Besoins prioritaires")+
+  scale_fill_manual(values = pal)+
+  theme_minimal()+
+  theme(legend.text = element_text(size = 20),
+        legend.title = element_text(size = 20))
+
+```
+
+## Île-de-France
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 13b : Cartodiagramme des indicateurs", fig.height=10, fig.width=15}
+
+#| label: Besoins - Île-de-France
+ggplot(data = pref_dist %>% filter(code_insee_de_la_region == 11)) + 
+  geom_sf() + 
+  geom_scatterpie(aes(x = X, 
+                      y = Y, 
+                      group = as.factor(code_insee)), 
+                  pie_scale = 4,
+                  data = pie_df %>% 
+                    filter(code_insee_de_la_region == 11) %>%
+  st_drop_geometry(),
+                  cols = c("scol","ndv","chom","suro","eprox","morti"),
+                  legend_name = "Besoins prioritaires")+
+  scale_fill_manual(values = pal)+
+  theme_minimal()+
+  theme(legend.text = element_text(size = 20),
+        legend.title = element_text(size = 20))
+```
+
+## Guadeloupe et Martinique
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 13c : Cartodiagramme des indicateurs", fig.height=10, fig.width=15}
+#| label: Besoins - Guadeloupe et Martinique
+ggplot(data = pref_dist %>% filter(code_insee %in% c(971,972))) + 
+  geom_sf() + 
+  geom_scatterpie(aes(x = X, 
+                      y = Y, 
+                      group = as.factor(code_insee)), 
+                  pie_scale = 10,
+                  data = pie_df %>% 
+                    filter(code_insee %in% c(971,972)) %>%
+  st_drop_geometry(),
+                  cols = c("scol","ndv","chom","suro","eprox","morti"),
+                  legend_name = "Besoins prioritaires")+
+  scale_fill_manual(values = pal)+
+  theme_minimal()+
+  theme(legend.text = element_text(size = 20),
+        legend.title = element_text(size = 20))
+```
+
+## Guyane, La Réunion et Mayotte
+
+```{r fig.align="center", fig.cap="Figure 13d : diagrammes des indicateurs", fig.height=6, fig.width=12, message=FALSE}
+#| label: Besoins - Suite des DOM
+grm<-pref_dist[,c('nom_officiel',vars)] %>% 
+  filter(nom_officiel %in% c("Guyane","La Réunion","Mayotte")) %>%
+  st_drop_geometry() %>%
+  melt()
+
+#Modification de la palette pour correspondre au nouvel ordre des variables
+pal<-c("#264653","#8ab17d","#2a9d8f","#e76f51","#e9c46a","#f4a261")
+
+ggplot(grm, 
+       aes(x = '', y = value, fill = variable))+
+  geom_bar(stat = "identity", width = 1)+
+  coord_polar("y", start=0)+
+  facet_wrap(~nom_officiel, scale = "free")+
+  theme_void()+
+  scale_fill_manual(values = pal)
+
+
+```
+:::
+
+Si nous souhaitons avoir les informations précises pour chaque département, une représentation non cartographique est plus adaptée, celle-ci est présentée dans la figure 15 à la fin de l'article. La représentation de la figure 13 permet rapidement d'observer à la fois l'indicateur prioritaire, mais également la présence significative ou non des autres indicateurs. Elle nous permet de constater que le centre et le sud-ouest de la France semblent être caractérisés par des besoins marqués par un ou deux des indicateurs, la proximité et le niveau de vie dans la plupart des cas. La moitié nord de l'hexagone présente comparativement une plus importante pluralité de besoins. Les départements d'outre-mer présentent pareillement des besoins importants et diversifiés.
+
+Une autre façon de représenter ce résultat est de faire varier la taille du diagramme selon la distance totale avec une situation optimale.
+
+```{r echo=TRUE, fig.align="center", fig.cap="Figure 14 : Cartodiagramme des indicateurs", fig.height=15, fig.width=15}
+#| label: Diagrammes proportionnels
+#Récupération de la distance cumulée par indicateur
+pref_dist$total<-pref_dist$scol + pref_dist$ndv + pref_dist$chom + pref_dist$suro + pref_dist$eprox + pref_dist$morti
+
+#Pour chaque carte, un coefficient adaptant la taille des diagrammes est essentielle.
+
+coeff<-8
+
+
+ggplot(data = pref_dist %>% filter(code_insee %in% met)) + 
+  geom_sf() + 
+  geom_scatterpie(aes(x = X, 
+                      y = Y, 
+                      group = as.factor(code_insee),
+                      r = (log(total)/coeff)),#Usage du log pour rendre la carte lisible.
+                  data = pie_df %>% 
+                    filter(code_insee %in% met) %>%
+  st_drop_geometry(),
+                  cols = vars,
+                  legend_name = "Besoins prioritaires")+
+  scale_fill_manual(values = pal)+
+  theme_minimal()+
+  theme(legend.text = element_text(size = 20),
+        legend.title = element_text(size = 20))
+```
+
+Dans la seconde carte (figure 14), la taille du diagramme est exprimée en distance en écarts-types cumulés au front. Cette dernière analyse révèle avant tout un important écart de la Seine-Saint-Denis avec le reste des départements métropolitains, totalisant 255 écarts-types de décalage avec la situation optimale la plus proche. La Lozère est seconde en Métropole avec 58 écarts-types pour un décalage médian de 9,16 parmi les départements non optimaux. Le problème de la proximité aux équipements est prioritaire dans les départements de la diagonale du vide, mais nombreux présentent également des besoins relatifs au niveau de vie et en termes de scolarité. L'écart de surmortalité infantile observée en Charente-Maritime ou en Haute-Vienne est en réalité faible par rapport au décalage du taux de chômage de la Vienne avec le reste de la nation.
+
+## Synthèse des résultats
+
+Une représentation proche du "tableau de bord" permet de résoudre l'ensemble des limites imputables à la production d'un unique graphique. La figure 15 permet ainsi de comparer l'ensemble des départements selon le niveau et la composition des besoins. La cartographie représente le niveau total des besoins et la couleur du besoin prioritaire. Un diagramme en barre donne le détail des besoins pour chaque département.
+
+```{r fig.align="center", fig.cap="Figure 15 : Synthèse des besoins", fig.height=100, fig.width=20, message=FALSE, warning=FALSE}
+#| label: Tableau de bord 2
+#| code-fold: true
+
+limites<-mf_get_breaks(pie_df$total, nbreaks = 3, "jenks")
+
+graph<-pie_df[,c('nom_officiel',vars)] %>% 
+  st_drop_geometry() %>% 
+  melt()
+
+p_bar <- ggplot(graph, aes(
+  x = reorder(nom_officiel,value),
+  y = value+1,
+  tooltip = nom_officiel,
+  data_id = nom_officiel,
+  fill = variable
+)) +
+  geom_bar_interactive(stat = "identity", position = "dodge")+
+  scale_y_log10()+
+  theme_minimal()+
+  coord_flip()+
+  theme(legend.position = "top")+
+  scale_fill_manual_interactive(values = pal)+
+  labs(y = "Distance cumulée au front de Pareto",
+       x = "",
+       fill = "Besoins / Besoin prioritaire")
+
+bbox_met<-st_bbox(pref_dist %>% filter(code_insee %in% met))
+bbox_gmg<-st_bbox(pref_dist %>% filter(code_insee %in% c(971,972,973)))
+bbox_mr<-st_bbox(pref_dist %>% filter(code_insee %in% c(974,976)))
+
+p_met<-ggplot() +
+  geom_sf(data = pref_dist %>% filter(code_insee %in% met), fill = "lightgrey", color = "black") +
+  geom_sf_interactive(
+    data = pie_df %>% 
+      st_centroid(),
+    aes(size = total,
+        color = priori,
+        tooltip = nom_officiel, 
+        data_id = nom_officiel)
+  ) +
+  scale_size_continuous(range = c(6, 30))+
+  scale_color_manual_interactive(values = pal2[-1])+
+  labs(size = "Distance cumulée au front \n(en nombre d'écarts-types)")+
+  coord_sf(xlim = c(bbox_met[1],bbox_met[3]),
+           ylim = c(bbox_met[2],bbox_met[4])) +
+  theme_minimal()+
+  guides(color = "none")
+
+p_gmg<-ggplot() +
+  geom_sf(data = monde, fill = "lightgrey", color = "lightgrey")+
+    geom_sf_interactive(
+    data = pie_df %>% 
+      st_centroid(),
+    aes(size = total,
+        color = priori,
+        tooltip = nom_officiel, 
+        data_id = nom_officiel),
+    show.legend = FALSE
+  ) +
+  scale_size_continuous(range = c(6, 30))+
+  scale_color_manual_interactive(values = pal2[-1])+
+  coord_sf(xlim = c(bbox_gmg[1],bbox_gmg[3]),
+           ylim = c(bbox_gmg[2],bbox_gmg[4])) +
+  theme_minimal()
+
+p_mr<-ggplot() +
+  geom_sf(data = monde, fill = "lightgrey", color = "lightgrey")+
+    geom_sf_interactive(
+    data = pie_df %>% 
+      st_centroid(),
+    aes(size = total,
+        color = priori,
+        tooltip = nom_officiel, 
+        data_id = nom_officiel),
+    show.legend = FALSE
+  ) +
+  scale_size_continuous(range = c(6, 30))+
+  scale_color_manual_interactive(values = pal2[-1])+
+  coord_sf(xlim = c(bbox_mr[1],bbox_mr[3]),
+           ylim = c(bbox_mr[2],bbox_mr[4])) +
+  theme_minimal()
+
+graphique<-p_met/(p_gmg+p_mr) / guide_area() / p_bar +
+  plot_layout(nrow = 4,
+              heights = c(2,2,1,7),
+              guides = "collect") & 
+  theme(text = element_text(size = 20),
+        legend.key.size = unit(2, 'cm'),
+        legend.direction = "horizontal")
+
+
+
+girafe(ggobj = graphique, options = list(opts_selection(type = "single", only_shiny = FALSE)))
+```
+
+# Conclusion
+
+Nous avons proposé une méthodologie alternative ou complémentaire de création d'indices composites pour fournir une analyse normative du territoire français. Dans ce contexte, l'indice composite présente deux limites qu'il convenait de dépasser.
+
+La première limite, synthèse excessive de l'information, est compensée par le calcul de la distance multidimensionnelle de chaque observation avec un objectif réaliste. Nous en tirons une pluralité des besoins spécifiques, permettant de conserver l'information intégrée dans l'indice. Des axes généraux d'amélioration peuvent être établis grâce à la mesure d'une distance à l'optimum.
+
+La deuxième limite tient au fait que toutes les observations se rapportent à celle première au classement, représentant l'unique idéal à atteindre, est compensée par l'usage du front de Pareto. En effet, le calcul de la distance multidimensionnelle peut se faire directement sur la "meilleure" observation. Le front de Pareto permet, d'une part, d'éviter les biais issus des pondérations égalitaires d'un indice composite, et d'autre part, de révéler un ensemble de compromis dits efficaces, incarnant des objectifs plus variés à atteindre.
+
+Ceci nous amène à la formation d'un outil dont la hiérarchie n'est plus linéaire mais personnalisée selon les besoins spécifiques de chaque observation. Cette méthode présente cependant quelques limites :
+
+-   La représentation graphique ou cartographique du résultat est multivariée par définition. Elle est en outre bien plus complexe que la représentation d'un indice composite qui présente une simplicité de lecture inégalée.
+
+-   Le poids strictement égalitaire qui est donné à chaque indicateur dans le cadre du front de Pareto crée des effets parfois indésirables : une multiplication à outrance d'observations optimales et l'attribution d'une optimalité en raison d'une valeur aberrante d'un indicateur, rendant le compromis discutable. Ce problème peut être en partie compensé par l'approche par les uplets ou l'abandon de Pareto au profit d'un ordre lexicographique.
+
+-   L'échelle de comparaison reste très impactante sur les résultats de ce type d'analyse. Elle peut identifier un front de Pareto comme objectif trop éloigné pour le reste des observations. En outre, il est possible de coupler cette approche avec une perspective multiscalaire comme proposé par @ysebaertApplicationConcentrationLemploi2021.
+
+# Bibliographie {.unnumbered}
+
+::: {#refs}
+:::
+
+# Annexes {.unnumbered}
+
+##### Informations de session {.unnumbered}
+
+```{r session_info, echo=FALSE}
+sessionInfo()
+```

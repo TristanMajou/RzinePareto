@@ -1,0 +1,24 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Normes éditoriales}{1}{section.1}%
+\contentsline {section}{\numberline {2}Introduction}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Un rapide indice composite}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Une échelle linéaire relativiste qui fait tendre vers un unique ``idéal''.}{5}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Un excès de synthèse de l'information utile.}{6}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Le front de Pareto}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Optimisation à deux critères}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Optimisation de l'ensemble}{8}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Aller plus loin avec l'optimum}{10}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Le plancher de Pareto}{10}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Optimisation par uplets}{12}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Distance à l'optimum}{14}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}Calcul de la distance}{14}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}Insérer un tableau}{19}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.3}Options du \emph {chunk}}{20}{subsubsection.4.3.3}%
+\contentsline {section}{\numberline {5}Compiler l'article}{20}{section.5}%
+\contentsline {section}{\numberline {6}Soumettre un article}{21}{section.6}%
+\contentsline {section}{\numberline {7}Annexes de l'article}{21}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Données}{21}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Références bibliographiques}{21}{subsection.7.2}%
+\contentsline {section}{Bibliographie}{21}{section*.6}%
+\contentsline {section}{Annexes}{21}{section*.8}%
+\contentsline {subparagraph}{Informations de session}{21}{section*.9}%
