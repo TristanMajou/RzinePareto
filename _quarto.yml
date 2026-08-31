@@ -33,8 +33,10 @@ lang: fr-FR
 repo: "template"
 
 format:
-  rzine-html: default
+  rzine-html:
+    fig-format: png
   rzine-pdf: default
+
 
 
 

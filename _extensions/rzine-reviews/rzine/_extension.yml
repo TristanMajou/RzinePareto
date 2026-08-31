@@ -11,7 +11,7 @@ contributes:
       toc-title: Table des matières
       code-copy: true
       code-block-background: true
-      bibliography: references.bib  
+      bibliography: references.bib
       csl: universite-de-montreal-apa.csl
       license: "CC BY-SA"
       css: styles.css
@@ -27,7 +27,7 @@ contributes:
 
     pdf:
       papersize: a4
-      geometry: 
+      geometry:
         - a4paper
         - textheight=24cm
         - textwidth=15.5cm
@@ -46,7 +46,7 @@ contributes:
       format-resources:
         - logo.png
         - cc-by.png
-        
+
     html:
       title-block-banner: "#0c3762"
       title-block-banner-color: "#C4D6EE"
@@ -55,7 +55,7 @@ contributes:
       template-partials:
           - "partials/html/title-block.html"
           - "partials/html/title-metadata.html"
-      reference-location: document    
+      reference-location: document
       hover-citations: true
       hover-footnotes: true
       fig-format: svg
@@ -68,7 +68,3 @@ contributes:
         fig-prefix: Figure
         tbl-prefix: Table
         html-math-method: katex
-    
-    
-
-
