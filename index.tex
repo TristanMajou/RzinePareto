@@ -1,0 +1,1477 @@
+% Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  french,
+  11pt,
+  a4paper,
+]{article}
+\usepackage{xcolor}
+\usepackage[a4paper,textheight=24cm,textwidth=15.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage[]{montserrat}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+  \setmonofont[Scale=0.92]{montserrat}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\newenvironment{Shaded}{}{}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.33,0.33}{\textbf{#1}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.42,0.45,0.49}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.84,0.23,0.29}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.36,0.77}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.84,0.23,0.29}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.01,0.18,0.38}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.42,0.45,0.49}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.42,0.45,0.49}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.36,0.77}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.84,0.23,0.29}{#1}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.84,0.23,0.29}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.36,0.77}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.42,0.45,0.49}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.33,0.33}{\underline{#1}}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.84,0.23,0.29}{\textbf{#1}}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.36,0.77}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.44,0.26,0.76}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.01,0.18,0.38}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.42,0.45,0.49}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.84,0.23,0.29}{#1}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.14,0.16,0.18}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.14,0.16,0.18}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.44,0.26,0.76}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.84,0.23,0.29}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.42,0.45,0.49}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.36,0.77}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.01,0.18,0.38}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.01,0.18,0.38}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.89,0.38,0.04}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.01,0.18,0.38}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{1.00,0.33,0.33}{#1}}
+
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+
+
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{orcidlink}
+\usepackage{lineno}
+\usepackage{libertinus}
+\usepackage{montserrat}
+\usepackage{draftwatermark}
+
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table des matières}
+\else
+  \newcommand\contentsname{Table des matières}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{Liste des Figures}
+\else
+  \newcommand\listfigurename{Liste des Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{Liste des Tables}
+\else
+  \newcommand\listtablename{Liste des Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{Liste des Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Rzine},
+  pdfauthor={Tristan Majou},
+  pdflang={fr-FR},
+  pdfkeywords={Rzine, template, Quarto, method, R, reproductibility},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Rzine}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Articles méthodologiques mis en application avec R}
+\author{Tristan Majou}
+\date{20 février 2026}
+\begin{document}
+\definecolor{rzine-blue}{HTML}{0C3762}
+\definecolor{title-blue}{HTML}{C4D6EE}
+\definecolor{title-grey}{HTML}{708090}
+
+
+
+\begin{tikzpicture}[remember picture,overlay]
+\fill[rzine-blue]
+  (current page.north west) -- (current page.north east) --
+  ([yshift=-5cm]current page.north east|-current page.north east) --
+  ([yshift=-5cm]current page.north west|-current page.north west) -- cycle;
+\node[anchor=north west, xshift=.75cm,
+  yshift=-.75cm] at (current page.north west) {\includegraphics[height=3cm]{logo}};
+
+\node[font=\sffamily\bfseries\color{title-blue},anchor=west,
+  xshift=4.25cm,yshift=-2.3cm] at (current page.north west)
+  {\begin{minipage}{15cm}
+    \fontsize{22}{30}\selectfont
+    Rzine
+    \vspace{.18cm}
+    \\
+    \fontsize{13}{18}\selectfont
+    Articles méthodologiques mis en application avec R
+    \vspace{.5cm}
+    \\
+    \fontsize{10}{18}\color{title-grey}\selectfont {\includegraphics[height=0.35cm]{cc-by}} ISSN 2743-8791 - Rzine.fr - Revue de méthodes pour les SHS  
+    
+  \end{minipage}};
+\end{tikzpicture}
+
+\vspace*{2.5cm}
+\begin{center}
+          Tristan Majou~\orcidlink{0000-0003-2757-0559}\quad
+             PLACES\\
+           
+  \bigskip
+  
+  Date de publication: 20 février 2026
+\end{center}
+      
+\bigskip
+\begin{abstract}
+Modéle de mise en page Quarto pour la revue Rzine, qui permet de publier
+sur des méthodes de SHS, mises en application avec R. Plus
+d'informations sur \url{https://rzine.fr}.
+\end{abstract}
+
+\noindent%
+{\it Keywords:} Rzine, template, Quarto, method, R, reproductibility
+\vfill
+
+% \linenumbers
+\DraftwatermarkOptions{stamp=true, colorspec=0.9, text={\rm submitted}}
+
+\renewcommand*\contentsname{Table des matières}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\listoffigures
+\listoftables
+
+setwd(``\textasciitilde/Documents/Articles/Pareto Rzine'')
+
+\section{Normes éditoriales}\label{normes-uxe9ditoriales}
+
+Les normes éditoriales des articles méthodologiques Rzines sont
+consultables \href{https://rzine.fr/documentation/normes/}{ici}.
+
+\section{Introduction}\label{introduction}
+
+Depuis la fin des années 2000, les indices composites ayant pour
+objectif de mesurer les inégalités socio-économiques se sont multipliés.
+Cet accroissement a pour source le rapport Stiglitz (2009), encourageant
+l'introduction de nouveaux indicateurs permettant de capturer la
+pluralité des formes que peuvent prendre la pauvreté, la précarité et le
+bien-être. En lien avec l'approche des capabilités proposées par Amartya
+Sen, l'usage des indices composites servent un rôle normatif : le choix
+des indicateurs révèle ce qui devrait être important dans la société, et
+dresse un panorama de la France autour de ce choix.
+
+De ce fait, les indices composites sont souvent utilisés pour porter un
+autre regard politique sur le territoire, en dépassant les indicateurs
+monétaires traditionnels tout en donnant la possibilité de les
+incorporer. Nous pouvons par exemple citer l'indice de développement
+humain (IDH), qui permis de concurrencer le PIB sur la question du
+bien-être humain auprès des organisations supranationales, Reporter Sans
+Frontières utilise également un indice composite pour mesurer la liberté
+de la presse dans le monde. On trouve également des indices composites
+ayant une visée nationale ou régionale, c'est le cas de l'IDH-2, un
+indice de développement humain établit pour la région Île-de-France, le
+PRDI, mesurant les inégalités interregionales portugaises, ou encore
+l'indice JANE, mesurant la vitalité urbaine à Barcelone.
+
+Cette approche présente ainsi d'importants avantages, elle donne la
+possibilité de synthétiser une quantité importante d'indicateurs divers,
+se traduisant par un diagnostic territorial simple à comprendre, venant
+soit en amont pour identifier la localisation d'un problème, ou en aval
+pour mesurer son évolution après la mise en place de politiques
+publiques. Pour autant, cette approche présente également un certain
+nombre de limites. Nous n'allons pas toutes les citer, mais nous
+souhaitons considérer deux d'entres elles auxquelles le front de Pareto
+peut permettre de répondre :
+
+\begin{itemize}
+\item
+  Un excès de synthèse de l'information utile.
+\item
+  Une échelle linéaire relativiste qui fait tendre vers un unique
+  ``idéal''.
+\end{itemize}
+
+\subsection{Un rapide indice
+composite}\label{un-rapide-indice-composite}
+
+Pour mieux comprendre ces limites, nous construisons dans un premier
+temps un indice composite porté sur les objectifs du développement
+durable. \href{https://statistiques-locales.insee.fr/}{Le site des
+statistiques locales de l'Insee}, propose un ensemble d'indicateurs
+liés, nous mobiliserons six indicateurs pour construire notre indice.
+
+Un indice composite est composé d'indicateurs qui peuvent eux-mêmes
+réunis dans des dimensions, le plus souvent selon une thématique qui les
+unit, ceci peut amener par exemple à rassembler un nombre inégal
+d'indicateurs entre dimensions pour leur donner au final le même poids
+dans le calcul de l'indice composite final. Dans notre cas, l'indice que
+nous allons créer appliquera un poids égal à chaque
+indicateur\footnote{L'optimum s'intéresse avant tout à la comparaison
+  des utilités des individus. Chaque individu ayant sa fonction
+  d'utilité propre, l'optimum de Pareto fonctionne avec un principe
+  d'unanimité, stipulant que si tout le monde dans une société préfère A
+  à B, alors la société dans son ensemble préfère A à B. En effet, le
+  front de Pareto nous donne un ensemble de situations optimales, mais
+  cette optimisation n'a d'intérêt que si tout le monde valorise les
+  éléments de la vie de la même manière, et dans notre cas, faisant
+  l'hypothèse qu'un indicateur a autant d'intérêt qu'une autre.}. Nous
+mobiliserons les suivants pour chaque département Français:
+
+\begin{itemize}
+\item
+  Part des non ou peu diplômés dans la pop. non scolarisée de 15 ans ou
+  + 2022 (scol)
+\item
+  Médiane du niveau de vie 2021 (ndv)
+\item
+  Taux de chômage annuel moyen 2024 (chom)
+\item
+  Part des logements en situation de sur-occupation 2021 (suro)
+\item
+  Part de la population éloignée des équipements de proximité 2021
+  (eprox)
+\item
+  Taux de mortalité infantile 2021-2023 (morti)
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Packages utilisés}
+\FunctionTok{library}\NormalTok{(readr)}
+\FunctionTok{library}\NormalTok{(reshape2)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(sf)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Linking to GEOS 3.12.2, GDAL 3.11.4, PROJ 9.4.1; sf_use_s2() is TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(dplyr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+
+Attachement du package : 'dplyr'
+\end{verbatim}
+
+\begin{verbatim}
+Les objets suivants sont masqués depuis 'package:stats':
+
+    filter, lag
+\end{verbatim}
+
+\begin{verbatim}
+Les objets suivants sont masqués depuis 'package:base':
+
+    intersect, setdiff, setequal, union
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(mapsf)}
+\FunctionTok{library}\NormalTok{(scatterpie)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+scatterpie v0.2.6 Learn more at https://yulab-smu.top/
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#chargement des données}
+\NormalTok{df}\OtherTok{\textless{}{-}}\FunctionTok{read\_csv}\NormalTok{(}\StringTok{"insee\_locale.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Rows: 101 Columns: 8
+\end{verbatim}
+
+\begin{verbatim}
+-- Column specification --------------------------------------------------------
+Delimiter: ","
+chr (2): code, NOM
+dbl (6): scol, ndv, chom, suro, eprox, morti
+
+i Use `spec()` to retrieve the full column specification for this data.
+i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dep}\OtherTok{\textless{}{-}}\FunctionTok{st\_read}\NormalTok{(}\StringTok{"DEPARTEMENT.shp"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Reading layer `DEPARTEMENT' from data source 
+  `/home/tristan/Documents/Articles/Pareto Rzine/Quarto_Rzine/DEPARTEMENT.shp' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 96 features and 5 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 99041.5 ymin: 6046547 xmax: 1242424 ymax: 7110497
+Projected CRS: RGF93 Lambert 93
+\end{verbatim}
+
+Les données que nous utilisons ne sont pas de même nature, elles sont
+donc non-commensurables et nécessitent d'être normalisées. Nous
+souhaitons que la valeur ``1'' représente la ``meilleure situation'',
+ceci signifie que le sens de la normalisation change pour le taux de
+chômage, la surrocupation du logement et la mortalité infantile.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Fonction de normalisation}
+\NormalTok{fnorm}\OtherTok{\textless{}{-}}\ControlFlowTok{function}\NormalTok{(x)\{(x }\SpecialCharTok{{-}} \FunctionTok{min}\NormalTok{(x, }\AttributeTok{na.rm =}\NormalTok{ T)) }\SpecialCharTok{/}\NormalTok{ (}\FunctionTok{max}\NormalTok{(x, }\AttributeTok{na.rm =}\NormalTok{ T) }\SpecialCharTok{{-}} \FunctionTok{min}\NormalTok{(x, }\AttributeTok{na.rm =}\NormalTok{ T))\}}
+
+\CommentTok{\#Calcul des indicateurs normalisés}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{scol\_n}\OtherTok{\textless{}{-}}\DecValTok{1}\SpecialCharTok{{-}}\FunctionTok{fnorm}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{scol)}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{ndv\_n}\OtherTok{\textless{}{-}}\FunctionTok{fnorm}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{ndv)}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{chom\_n}\OtherTok{\textless{}{-}}\DecValTok{1}\SpecialCharTok{{-}}\FunctionTok{fnorm}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{chom)}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{suro\_n}\OtherTok{\textless{}{-}}\DecValTok{1}\SpecialCharTok{{-}}\FunctionTok{fnorm}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{suro)}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{eprox\_n}\OtherTok{\textless{}{-}}\DecValTok{1}\SpecialCharTok{{-}}\FunctionTok{fnorm}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{eprox)}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{morti\_n}\OtherTok{\textless{}{-}}\DecValTok{1}\SpecialCharTok{{-}}\FunctionTok{fnorm}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{morti)}
+
+\CommentTok{\#palette de couleur pour les graphiques et les cartes}
+\NormalTok{pal}\OtherTok{\textless{}{-}}\FunctionTok{c}\NormalTok{(}\StringTok{"\#e76f51"}\NormalTok{,}\StringTok{"\#264653"}\NormalTok{,}\StringTok{"\#e9c46a"}\NormalTok{,}\StringTok{"\#8ab17d"}\NormalTok{,}\StringTok{"\#f4a261"}\NormalTok{,}\StringTok{"\#2a9d8f"}\NormalTok{)}
+
+\CommentTok{\#Distribution des indicateurs}
+\FunctionTok{ggplot}\NormalTok{(}
+  \FunctionTok{melt}\NormalTok{(df[,}\DecValTok{9}\SpecialCharTok{:}\DecValTok{14}\NormalTok{] }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{as.data.frame}\NormalTok{()),}
+  \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ variable, }\AttributeTok{y =}\NormalTok{ value, }\AttributeTok{fill =}\NormalTok{ variable))}\SpecialCharTok{+}
+  \FunctionTok{geom\_boxplot}\NormalTok{()}\SpecialCharTok{+}
+  \FunctionTok{theme\_light}\NormalTok{()}\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"none"}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =}\NormalTok{ pal)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+No id variables; using all as measure variables
+\end{verbatim}
+
+\begin{verbatim}
+Warning: Removed 7 rows containing non-finite outside the scale range
+(`stat_boxplot()`).
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-2-1.pdf}}
+
+Il existe plusieurs manières de calculer l'indice synthétique à partir
+des indicateurs normalisés, ici nous choisissons de calculer une simple
+moyenne entre les indicateurs, et de normaliser le résultat.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Calcul de la moyenne arithmétique}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{indice}\OtherTok{\textless{}{-}}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{scol\_n }\SpecialCharTok{+}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{ndv\_n }\SpecialCharTok{+}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{chom\_n }\SpecialCharTok{+}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{suro\_n }\SpecialCharTok{+}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{eprox\_n }\SpecialCharTok{+}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{morti\_n) }\SpecialCharTok{/} \DecValTok{6} \CommentTok{\#le nombre d\textquotesingle{}indicateurs utilisés}
+\CommentTok{\#Normalisation du résultat}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{indice\_n}\OtherTok{\textless{}{-}}\FunctionTok{fnorm}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{indice)}
+
+\CommentTok{\#Jointure spatiale}
+\NormalTok{df}\OtherTok{\textless{}{-}}\FunctionTok{left\_join}\NormalTok{(dep,df,}\StringTok{"NOM"}\NormalTok{)}
+
+\CommentTok{\#Limites de classes}
+\NormalTok{limites}\OtherTok{\textless{}{-}}\FunctionTok{mf\_get\_breaks}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{indice\_n,}
+              \DecValTok{5}\NormalTok{,}
+              \StringTok{"quantile"}\NormalTok{,)}
+
+\CommentTok{\#cartographie}
+\FunctionTok{mf\_choro}\NormalTok{(df,}
+         \AttributeTok{breaks =}\NormalTok{ limites,}
+         \AttributeTok{var =} \StringTok{"indice\_n"}\NormalTok{, }
+         \AttributeTok{pal =} \StringTok{"Blue{-}Red 2"}\NormalTok{)}
+\FunctionTok{mf\_inset\_on}\NormalTok{(df, }\AttributeTok{pos =} \StringTok{"topleft"}\NormalTok{)}
+\FunctionTok{mf\_choro}\NormalTok{(df[}\FunctionTok{which}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{INSEE\_REG }\SpecialCharTok{==} \DecValTok{11}\NormalTok{),],}
+         \AttributeTok{breaks =}\NormalTok{ limites,}
+         \AttributeTok{var =} \StringTok{"indice\_n"}\NormalTok{, }
+         \AttributeTok{pal =} \StringTok{"Blue{-}Red 2"}\NormalTok{,}
+         \AttributeTok{leg\_pos =} \ConstantTok{NA}\NormalTok{)}\CommentTok{\#Crée un cadre pour l\textquotesingle{}île{-}de{-}France}
+\FunctionTok{mf\_inset\_off}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-3-1.pdf}}
+
+Notre indice dépeint les difficultés que peuvent connaître certains
+territoires, en particulier dans le centre de la France, dans le
+nord-est, ainsi que certains départements en Île-de-France et autour.
+
+\subsection{Une échelle linéaire relativiste qui fait tendre vers un
+unique
+``idéal''.}\label{une-uxe9chelle-linuxe9aire-relativiste-qui-fait-tendre-vers-un-unique-iduxe9al.}
+
+La pratique de la normalisation pour rendre comparable des indicateurs
+non-commensurables nécessite de traduire les valeurs initiales des
+indicateurs en une échelle située entre 0 et 1. Dans notre cas, la
+valeur 0 est définie par la valeur minimum de chaque indicateur, après
+avoir fait la moyenne réunissant les différents indicateurs, un unique
+département (la Réunion) possède le pire score. À l'inverse, un unique
+département (les Hauts-de-Seine), représente le meilleur scénario,
+l'ensemble des autres départements se positionnent en fonction de ces
+deux valeurs extrêmes. Ceci peut poser des problèmes sur des
+comparaisons diachroniques d'un même indice, il suffit en effet que les
+Hauts-de-Seine améliorent davantage leur situation pour diminuer le
+score des autres départements.
+
+En conséquence, les indices composites tendent à se lirent davantage
+comme des classements, bien que la différence entre les placements n'est
+lui-même pas linéaire.
+
+\subsection{Un excès de synthèse de l'information
+utile.}\label{un-excuxe8s-de-synthuxe8se-de-linformation-utile.}
+
+Si les valeurs extrêmes de notre indice permettent d'identifier
+immédiatement quels espaces sont favorisés et lesquels sont défavorisés,
+il est difficile de suggérer pourquoi un département donné, en
+particulier si sa valeur est plutôt moyenne, a une valeur spécifique.
+Deux départements ayant une valeur proche sur l'indice composite peuvent
+l'être avec d'importantes différences sous-jacentes au niveau des
+indicateurs mobilisés. Cette critique peut être caractérisée d'excès de
+synthèse et nuit à une véritable compréhension de la situation,
+uniquement à cause de la nature composite de l'indice. Ceci est illustré
+par une des premières critique de l'IDH, Srinivasan (1994) considère en
+effet que l'IDH pose des problèmes conséquents de comparaison dans
+l'espace et le temps. De plus, comme nous l'avons souligné, des
+inférences sur les questions de développement ou de politiques peuvent
+difficilement être faites en se basant uniquement sur l'IDH. Ce type
+d'indice souffre alors d'une focalisation sur la classification que
+l'indice crée, en particulier autours de ses valeurs extrêmes, et
+informe finalement très peu sur la majorité des individus classés.
+
+\section{Le front de Pareto}\label{le-front-de-pareto}
+
+Le front de Pareto permet d'apporter une solution aux deux problèmes
+mentionnés plus tôt. Élaboré par L'économiste et sociologue italien
+Vilfredo Pareto, le front de Pareto repose sur la notion d'optimum de
+Pareto. En économie, celui-ci décrit une situation où il est impossible
+d'améliorer le niveau d'utilité d'un individu sans diminuer celle des
+autres. Bien que le concept soit alors contraint dans son cadre
+théorique de l'utilité{[}\^{}2{]} (et donc rattachées aux individus),
+une application géographique de l'optimum de Pareto, par l'usage
+d'aggrégats, sort de ce cadre théorique. Ceci amène également à
+rapprocher l'optimisation de l'utilité \textbf{pour} la collectivité à
+une utilité \textbf{de} la collectivité (Berthonnet, 2024). Dit
+autrement, la construction de cet indice, et l'usage de l'optimum de
+Pareto a pour but direct ou indirect d'améliorer la situation des
+territoires eux-mêmes, en mesurant l'inégalité de différentes
+collectivités plutôt que les individus au sein de celles-ci.
+
+Si l'optimum représente souvent une unique situation réglant un problème
+d'allocation multicritère, le front de Pareto décrit l'ensemble des
+situations non-dominées selon les critères établis. Dans notre exemple,
+un département sera dit non-dominé s'il n'existe pas de solution pour:
+
+\[
+\forall_i, f_i(x_1)<f_i(x_n)
+\] tout indicateur \(i\) à optimiser, le département \(x_1\) est
+inférieur à un autre \(x_n\)
+
+\subsection{Optimisation à deux
+critères}\label{optimisation-uxe0-deux-crituxe8res}
+
+Une représentation classique du front de Pareto est de représenter deux
+critères d'optimisation sur l'abscisse et l'ordonnée d'un graphique,
+avec un escalier représentant le front optimal. Dans un premier temps,
+nous pouvons calculer le front de Pareto pour deux de nos indicateurs
+utilisés. Le package \texttt{rPref}, permet de simplement optimiser nos
+variables grâce aux fonctions \texttt{high()} et \texttt{low()}, qui
+optimisent respectivement autour de la valeur maximale d'une variable,
+et la valeur minimale. Pour optimiser une multitude de variable, il faut
+multiplier les optimisations entre-elles. Dans l'exemple suivant nous
+optimisons ``vers le bas'' la variable \texttt{scol} puisque sa valeur
+minimale décrit le département ayant la plus grande part de la
+population ayant un diplôme, nous optimisons également ``vers le haut''
+le niveau de vie. La fonction \texttt{psel()} permet d'extraire les
+observations sur le front de Pareto. Comme l'optimisation est réalisée
+pour chaque critère pris individuellement, il n'est pas nécessaire
+d'utiliser la forme normalisée de ces variables.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{require}\NormalTok{(rPref)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Le chargement a nécessité le package : rPref
+\end{verbatim}
+
+\begin{verbatim}
+
+Attachement du package : 'rPref'
+\end{verbatim}
+
+\begin{verbatim}
+L'objet suivant est masqué depuis 'package:dplyr':
+
+    between
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Optimisation }
+\NormalTok{pref}\OtherTok{\textless{}{-}}\FunctionTok{low}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{chom) }\SpecialCharTok{*} \FunctionTok{high}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{ndv)}
+\NormalTok{dfpref}\OtherTok{\textless{}{-}}\FunctionTok{psel}\NormalTok{(df, pref)}
+\CommentTok{\#Création d\textquotesingle{}une variable d\textquotesingle{}appartenance au front de Pareto}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{fp}\OtherTok{\textless{}{-}}\FunctionTok{ifelse}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{INSEE\_DEP }\SpecialCharTok{\%in\%}\NormalTok{ dfpref}\SpecialCharTok{$}\NormalTok{INSEE\_DEP,}
+              \StringTok{"Sur le front de Pareto"}\NormalTok{, }
+              \StringTok{"Département non{-}optimal"}\NormalTok{)}
+
+\CommentTok{\#Graphique du front de Pareto}
+\FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{chom, }\AttributeTok{y=}\NormalTok{ndv, }\AttributeTok{colour =}\NormalTok{ fp))}\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+  \FunctionTok{geom\_step}\NormalTok{(}\AttributeTok{data =}\NormalTok{ dfpref, }\AttributeTok{colour =} \StringTok{"blue2"}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{scale\_color\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"black"}\NormalTok{,}\StringTok{"blue2"}\NormalTok{))}\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"bottom"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-4-1.pdf}}
+
+Le front représente donc la courbe optimale, les cinq départements qui
+sont sur celle-ci ont le taux de chômage le plus faible, qui peut
+diminuer uniquement à l'avantage d'un niveau de vie plus élevé.
+
+\subsection{Optimisation de l'ensemble}\label{optimisation-de-lensemble}
+
+Après avoir pu illustrer le front de Pareto sur deux critères, nous
+pouvons créer une optimisation reprenant l'ensemble des indicateurs de
+notre indice synthétique. Nous utilisons le même processus
+d'optimisation en ajoutant les indicateurs non-utilisés au produit, en
+respectant la direction ``bénéfique'' des indicateurs. Comme nous
+utilisons plus de deux indicateurs, la représentation graphique du front
+devient plus complexe, nous pouvons cependant cartographier les
+départements s'étant retrouvés sur le front.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Optimisation}
+\NormalTok{pref}\OtherTok{\textless{}{-}}\FunctionTok{low}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{scol)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{ndv)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{chom)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{suro)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{eprox)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{morti)}
+\NormalTok{dfpref}\OtherTok{\textless{}{-}}\FunctionTok{psel}\NormalTok{(df, pref)}
+
+\CommentTok{\#Création d\textquotesingle{}une variable d\textquotesingle{}appartenance au front de Pareto}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{fp}\OtherTok{\textless{}{-}}\FunctionTok{ifelse}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{INSEE\_DEP }\SpecialCharTok{\%in\%}\NormalTok{ dfpref}\SpecialCharTok{$}\NormalTok{INSEE\_DEP,}
+              \StringTok{"Sur le front de Pareto"}\NormalTok{, }
+              \StringTok{"Département non{-}optimal"}\NormalTok{)}
+
+\CommentTok{\#Cartographie des Départements optimaux}
+\FunctionTok{mf\_typo}\NormalTok{(df, }
+        \AttributeTok{var =} \StringTok{"fp"}\NormalTok{,}
+        \AttributeTok{pal =} \FunctionTok{c}\NormalTok{(}\StringTok{"grey"}\NormalTok{,}\StringTok{"blue2"}\NormalTok{))}
+\FunctionTok{mf\_inset\_on}\NormalTok{(df, }\AttributeTok{pos =} \StringTok{"topleft"}\NormalTok{)}
+\FunctionTok{mf\_typo}\NormalTok{(df[}\FunctionTok{which}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{INSEE\_REG }\SpecialCharTok{==} \DecValTok{11}\NormalTok{),],}
+         \AttributeTok{var =} \StringTok{"fp"}\NormalTok{, }
+         \AttributeTok{pal =} \FunctionTok{c}\NormalTok{(}\StringTok{"grey"}\NormalTok{,}\StringTok{"blue2"}\NormalTok{),}
+         \AttributeTok{leg\_pos =} \ConstantTok{NA}\NormalTok{)}\CommentTok{\#Crée un cadre pour l\textquotesingle{}île{-}de{-}France}
+\FunctionTok{mf\_inset\_off}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-5-1.pdf}}
+
+En comparant cette nouvelle carte avec celle de l'indice composite, des
+similarités émergent. Il est en effet normal de retrouver sur le front
+les départements ayant généralement la meilleure situation des
+indicateurs utilisés. L'appartenance à une situation optimale n'assure
+pas une bonne situation, c'est le cas de la Lozère qui est optimal bien
+que la valeur de l'indice soit de 0,39. Ceci s'explique lorsqu'un
+département présente la majorité de ses indicateurs défavorable avec un
+unique indicateur venant compenser les autres. Cet effet peut être
+contrôlé en diminuant artificiellement le nombre d'observations retenues
+par la fonction \texttt{psel()}. Il est aussi possible de faire fi de la
+pondération égalitaire sous-jacente du calcul de l'optimum en
+introduisant un ordre lexicographique aux différents indicateurs,
+nécessitant l'optimisation de certains critères avant d'optimiser les
+autres. La Lozère présente ainsi un faible taux de chômage, mais à quel
+point celui-ci est-il avantageux quand le niveau de vie est
+conjointement faible ?
+
+Nous pouvons donc recalculer une optimisation avec comme indicateurs
+prioritaires le niveau de vie, la mortalité infantile et la
+surrocupation du logement, ajoutant la part des diplômes, le taux de
+chômage et les équipements à proximité comme moins importants. Nous
+pouvons également limiter le nombre d'observation optimales aux vingt
+départements les plus optimaux.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Optimisation hiérarchisée}
+\NormalTok{pref}\OtherTok{\textless{}{-}}\NormalTok{(}\FunctionTok{high}\NormalTok{(ndv, }\AttributeTok{df =}\NormalTok{ df)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(suro)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(morti)) }\SpecialCharTok{\&}\NormalTok{ (}\FunctionTok{low}\NormalTok{(scol)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(chom)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(eprox))}
+\NormalTok{dfpref}\OtherTok{\textless{}{-}}\FunctionTok{psel}\NormalTok{(df, pref, }\AttributeTok{top =} \DecValTok{20}\NormalTok{)}
+
+\CommentTok{\#Création d\textquotesingle{}une variable d\textquotesingle{}appartenance au front de Pareto}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{fp}\OtherTok{\textless{}{-}}\FunctionTok{ifelse}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{INSEE\_DEP }\SpecialCharTok{\%in\%}\NormalTok{ dfpref}\SpecialCharTok{$}\NormalTok{INSEE\_DEP,}
+              \StringTok{"Sur le front de Pareto"}\NormalTok{, }
+              \StringTok{"Département non{-}optimal"}\NormalTok{)}
+
+\CommentTok{\#Cartographie des Départements optimaux}
+\FunctionTok{mf\_typo}\NormalTok{(df,}
+        \AttributeTok{var =} \StringTok{"fp"}\NormalTok{,}
+        \AttributeTok{pal =} \FunctionTok{c}\NormalTok{(}\StringTok{"grey"}\NormalTok{,}\StringTok{"blue2"}\NormalTok{))}
+\FunctionTok{mf\_inset\_on}\NormalTok{(df, }\AttributeTok{pos =} \StringTok{"topleft"}\NormalTok{)}
+\FunctionTok{mf\_typo}\NormalTok{(df[}\FunctionTok{which}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{INSEE\_REG }\SpecialCharTok{==} \DecValTok{11}\NormalTok{),],}
+         \AttributeTok{var =} \StringTok{"fp"}\NormalTok{, }
+         \AttributeTok{pal =} \FunctionTok{c}\NormalTok{(}\StringTok{"grey"}\NormalTok{,}\StringTok{"blue2"}\NormalTok{),}
+         \AttributeTok{leg\_pos =} \ConstantTok{NA}\NormalTok{)}\CommentTok{\#Crée un cadre pour l\textquotesingle{}île{-}de{-}France}
+\FunctionTok{mf\_inset\_off}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-6-1.pdf}}
+
+Ce type de représentation donne ainsi un diagnostique similaire à
+l'indice composite, sans établir de classement linéaire entre ces
+observations, il permet aussi de cibler un nombre limité d'observation
+pour une analyse donnée en priorisant certains indicateurs sans
+introduire les biais de pondération de l'indice composite. Pour autant,
+il manque ici une perspective sur les départements plus défavorisés et
+cette approche est tout aussi coupable d'un excès de synthèse
+d'information que l'indice composite, si ce n'est plus. Il nous faut
+donc pousser l'analyse, en particulier faire ressortir davantage
+d'information utile, ceci passe d'une part par le calcul d'un
+``plancher'' de Pareto, puis, dans le cas des départements non-optimaux,
+de calculer les distances au front.
+
+\section{Aller plus loin avec
+l'optimum}\label{aller-plus-loin-avec-loptimum}
+
+\subsection{Le plancher de Pareto}\label{le-plancher-de-pareto}
+
+Nous avons jusqu'à présent optimisé les indicateurs pour identifier les
+meilleurs scénarios pour les départements. Le front de Pareto qui en
+résulte représente un mélange de ce qui peut se trouver le mieux parmi
+les départements français. Ceci présente cependant un intérêt limité :
+s'il peut être pertinent d'identifier les meilleures observations pour
+possiblement s'en inspirer, notre analyse ne nous indique pas quels
+départements sont le plus en difficulté sur les indicateurs que nous
+avons mobilisés. Il suffit ici d'inverser le sens de l'optimisation, de
+calculer une forme de plancher où aucune diminution des indicateurs ne
+peut se faire sans que l'on trouve un autre indicateur plus élevé, une
+situation où les départements sont entièrement dominés par les autres.
+Ceci peut être illustré en ajoutant le plancher de Pareto au graphique
+vu précédemment :
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Optimisation }
+\NormalTok{pref\_fp}\OtherTok{\textless{}{-}}\FunctionTok{low}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{chom)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{ndv) }\CommentTok{\#Optimisation au front de Pareto}
+\NormalTok{pref\_pp}\OtherTok{\textless{}{-}}\FunctionTok{high}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{chom)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{ndv) }\CommentTok{\#Optimisation au plancher de Pareto}
+
+\NormalTok{dffp}\OtherTok{\textless{}{-}}\FunctionTok{psel}\NormalTok{(df, pref\_fp) }\CommentTok{\#Front de Pareto}
+\NormalTok{dfpp}\OtherTok{\textless{}{-}}\FunctionTok{psel}\NormalTok{(df, pref\_pp) }\CommentTok{\#Plancher de Pareto}
+
+\CommentTok{\#Création d\textquotesingle{}une variable d\textquotesingle{}appartenance}
+\NormalTok{df}\SpecialCharTok{$}\NormalTok{fpp}\OtherTok{\textless{}{-}}\FunctionTok{ifelse}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{INSEE\_DEP }\SpecialCharTok{\%in\%}\NormalTok{ dffp}\SpecialCharTok{$}\NormalTok{INSEE\_DEP,}
+               \StringTok{"Sur le front de Pareto"}\NormalTok{,}
+               \FunctionTok{ifelse}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{INSEE\_DEP }\SpecialCharTok{\%in\%}\NormalTok{ dfpp}\SpecialCharTok{$}\NormalTok{INSEE\_DEP,}
+                      \StringTok{"Sur le plancher de Pareto"}\NormalTok{,}
+                      \StringTok{"Département Non{-}optimal"}
+\NormalTok{               ))}
+
+\CommentTok{\#Graphique du front de Pareto}
+\FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{chom, }\AttributeTok{y=}\NormalTok{ndv, }\AttributeTok{colour =}\NormalTok{ fpp))}\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+  \FunctionTok{geom\_step}\NormalTok{(}\AttributeTok{data =}\NormalTok{ dffp, }\AttributeTok{colour =} \StringTok{"blue2"}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{geom\_step}\NormalTok{(}\AttributeTok{data =}\NormalTok{ dfpp, }\AttributeTok{colour =} \StringTok{"red2"}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{scale\_color\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"black"}\NormalTok{,}\StringTok{"blue2"}\NormalTok{,}\StringTok{"red2"}\NormalTok{))}\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{"bottom"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-7-1.pdf}}
+
+Dans une situation à deux critères, les fronts et planchers de Pareto
+sont systématiquement distincts, mais au fur et à mesure que les
+dimensions d'optimisation s'ajoutent, il devient possible d'avoir des
+observations conjointement optimales, ceci revenant à dire qu'elles sont
+à la fois non dominées et strictement dominées par la même occasion. En
+général, cette situation apparaît lorsque pour une observation donnée,
+un indicateur spécifique le distingue particulièrement.
+
+Nous pouvons générer un exemple de cette situation à partir de nos
+données, en optimisant les indicateurs sur la scolarité, le chômage et
+la mortalité infantile, le département de la Lozère est ici
+simultanément sur le front et sur le plancher du fait d'une mortalité
+infantile particulièrement élevée. Tandis que le front de Pareto
+représente le champ du possible en termes de bien-être, et le plancher
+de Pareto représente une situation minimale, les territoires étant
+conjointement optimales représentent des cas particuliers dont les
+variations des indicateurs les place ``à la marge'' du reste, souvent
+porté par un seul indicateur.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{include\_graphics}\NormalTok{(}\StringTok{"figures/movie.gif"}\NormalTok{) }\CommentTok{\# lien vers le fichier image}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=3.125in,height=\textheight,keepaspectratio]{figures/movie.gif}
+
+}
+
+\caption{Image 1 : front et plancher de Pareto sur trois indicateurs}
+
+\end{figure}%
+
+Avec la multiplication des indicateurs, ce cas de figure devient plus
+courant puisque nous multiplions les dimensions par lesquelles les
+départments peuvent se distinguer.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Optimisation}
+\NormalTok{pref\_fp}\OtherTok{\textless{}{-}}\FunctionTok{high}\NormalTok{(ndv, }\AttributeTok{df =}\NormalTok{ df)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(suro)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(morti)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(scol)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(chom)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(eprox)}
+
+\NormalTok{pref\_pp}\OtherTok{\textless{}{-}}\FunctionTok{low}\NormalTok{(ndv, }\AttributeTok{df =}\NormalTok{ df)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(suro)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(morti)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(scol)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(chom)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(eprox)}
+
+\NormalTok{dffp}\OtherTok{\textless{}{-}}\FunctionTok{psel}\NormalTok{(df, pref\_fp)}
+\NormalTok{dfpp}\OtherTok{\textless{}{-}}\FunctionTok{psel}\NormalTok{(df, pref\_pp)}
+
+
+
+\CommentTok{\#Cartographie des Départements optimaux}
+\FunctionTok{mf\_map}\NormalTok{(df)}
+\FunctionTok{mf\_map}\NormalTok{(dffp,}
+       \AttributeTok{add =}\NormalTok{ T,}
+       \AttributeTok{col =} \StringTok{"blue2"}\NormalTok{)}
+\FunctionTok{mf\_map}\NormalTok{(dfpp,}
+       \AttributeTok{add =}\NormalTok{ T,}
+       \AttributeTok{col =} \StringTok{"red2"}\NormalTok{)}
+\FunctionTok{mf\_map}\NormalTok{(dffp[}\FunctionTok{which}\NormalTok{(dffp}\SpecialCharTok{$}\NormalTok{INSEE\_DEP }\SpecialCharTok{\%in\%}\NormalTok{ dfpp}\SpecialCharTok{$}\NormalTok{INSEE\_DEP),],}
+       \AttributeTok{add =}\NormalTok{ T,}
+       \AttributeTok{col =} \StringTok{"\#800080"}\NormalTok{)}
+\FunctionTok{mf\_legend}\NormalTok{(}\AttributeTok{type =} \StringTok{"typo"}\NormalTok{,}
+          \AttributeTok{val =} \FunctionTok{c}\NormalTok{(}\StringTok{"Sur le front de Pareto"}\NormalTok{,}
+                  \StringTok{"Sur le plancher de Pareto"}\NormalTok{,}
+                  \StringTok{"Sur le front et le plancher de Pareto"}\NormalTok{,}
+                  \StringTok{"Non{-}optimal"}\NormalTok{),}
+          \AttributeTok{title =} \ConstantTok{NA}\NormalTok{,}
+          \AttributeTok{pal =} \FunctionTok{c}\NormalTok{(}\StringTok{"blue2"}\NormalTok{,}\StringTok{"red2"}\NormalTok{,}\StringTok{"\#800080"}\NormalTok{,}\StringTok{"grey"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-9-1.pdf}}
+
+Ces différentes optimisations donnent une perspective plus détaillée de
+la France métropolitaine. Les départements sur le plancher suivent en
+partie la diagonale du vide. Les départements conjointement sur le front
+et le plancher se concentrent au nord, à l'est et dans le sud, entre la
+région PACA et l'Occitanie. Ces départements constituent des
+\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#
+
+\subsection{Optimisation par uplets}\label{optimisation-par-uplets}
+
+Le package \texttt{rPref} permet d'imiter directement cette logique en
+récupérant le niveau d'optimalité pour chaque observation, permettant
+une classification par les uplets, représentant les ensembles optimaux
+successifs. Pour cette étape, l'optimisation en utilisant l'opérateur
+\texttt{\textbar{}} applicant une dominance stricte de l'ensemble des
+indicateurs plutôt que l'opérateur \texttt{*} qui autorise une dominance
+sur un unique indicateur, permet de diminuer le nombre d'uplets et donc
+de classes considérées
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Graphique d\textquotesingle{}illustration des uplets optimaux}
+
+\FunctionTok{psel}\NormalTok{(df,}
+     \AttributeTok{p =} \FunctionTok{low}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{chom) }\SpecialCharTok{|} \FunctionTok{high}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{ndv),}
+     \AttributeTok{top =} \FunctionTok{nrow}\NormalTok{(df)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ chom,}
+             \AttributeTok{y =}\NormalTok{ ndv,}
+             \AttributeTok{colour =} \FunctionTok{factor}\NormalTok{(.level)))}\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+  \FunctionTok{geom\_step}\NormalTok{(}\AttributeTok{direction =} \StringTok{"hv"}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{scale\_color\_discrete}\NormalTok{(}\AttributeTok{palette =} \StringTok{"Blue{-}Red 2"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-10-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Optimisation hiérarchisée}
+\NormalTok{pref}\OtherTok{\textless{}{-}}\FunctionTok{high}\NormalTok{(ndv, }\AttributeTok{df =}\NormalTok{ df) }\SpecialCharTok{|} \FunctionTok{low}\NormalTok{(suro) }\SpecialCharTok{|} \FunctionTok{low}\NormalTok{(morti) }\SpecialCharTok{|} \FunctionTok{low}\NormalTok{(scol) }\SpecialCharTok{|} \FunctionTok{low}\NormalTok{(chom) }\SpecialCharTok{|} \FunctionTok{low}\NormalTok{(eprox)}
+\NormalTok{dfpref}\OtherTok{\textless{}{-}}\FunctionTok{psel}\NormalTok{(df, pref, }\AttributeTok{top =} \FunctionTok{nrow}\NormalTok{(df))}
+
+\CommentTok{\#Cartographie des uplets}
+\FunctionTok{mf\_typo}\NormalTok{(dfpref,}
+        \AttributeTok{var =} \StringTok{".level"}\NormalTok{,}
+        \AttributeTok{pal =} \StringTok{"RdYlBu"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-10-2.pdf}}
+
+Nous pouvons constater que les uplets ne se croisent pas
+systématiquement avec la notion de plancher de pareto. Le deuxième
+scénario le plus optimal peut ainsi inclure des départements sur le
+plancher de Pareto, lorsque ceux-ci arrivent à se distinguer par un
+unique indicateur.
+
+\subsection{Distance à l'optimum}\label{distance-uxe0-loptimum}
+
+En l'état, ces analyses offrent une description originale mais peu
+fonctionnel d'un territoire. En effet, savoir quel département se place
+sur un optimum n'apporte que l'information très synthétique qu'il se
+distingue des autres, d'une façon positive ou négative selon ce que l'on
+mesure. Dans un indice composite, la situation idéale est définie par la
+meilleure observation. Cependant, il est souvent le cas que la meilleure
+observation possède un profil aberrant et ne représente pas un idéal
+``réaliste à atteindre''. Le front de Pareto permet de multiplier les
+scénarios idéaux vers lesquels les territoires peuvent tendre. Ceci
+repose sur le calcul de la distance multidimensionnelle d'un département
+non-optimal vers le point sur le front de Pareto le plus proche.
+
+\subsubsection{Calcul de la distance}\label{calcul-de-la-distance}
+
+Pour définir, pour chaque département, la distance la plus courte pour
+atteindre le front de Pareto, il est donc nécessaire de la calculer avec
+chaque département en situation optimale. Il est ici intéressant
+d'uniquement considérer les départements uniquement sur le front de
+Pareto puisque ceux étant conjointement sur le front et le plancher
+peuvent représenter des situations spécifiques et non forcément
+enviables.
+
+Nous calculons deux distances : la première est la différence entre deux
+départements pour un indicateur, la seconde est la somme des distances
+des indicateurs entre deux départements
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#On reproduit l\textquotesingle{}optimisation précédente}
+
+\CommentTok{\#Optimisation}
+\NormalTok{pref\_fp}\OtherTok{\textless{}{-}}\FunctionTok{high}\NormalTok{(ndv, }\AttributeTok{df =}\NormalTok{ df)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(suro)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(morti)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(scol)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(chom)}\SpecialCharTok{*}\FunctionTok{low}\NormalTok{(eprox)}
+
+\NormalTok{pref\_pp}\OtherTok{\textless{}{-}}\FunctionTok{low}\NormalTok{(ndv, }\AttributeTok{df =}\NormalTok{ df)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(suro)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(morti)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(scol)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(chom)}\SpecialCharTok{*}\FunctionTok{high}\NormalTok{(eprox)}
+
+\NormalTok{dffp}\OtherTok{\textless{}{-}}\FunctionTok{psel}\NormalTok{(df, pref\_fp)}
+\NormalTok{dfpp}\OtherTok{\textless{}{-}}\FunctionTok{psel}\NormalTok{(df, pref\_pp)}
+
+\CommentTok{\#Retrait des départements sur le plancher de Pareto des données du front }
+
+\NormalTok{dffp }\OtherTok{\textless{}{-}}\NormalTok{ dffp[}\SpecialCharTok{{-}}\FunctionTok{which}\NormalTok{(dffp}\SpecialCharTok{$}\NormalTok{INSEE\_DEP }\SpecialCharTok{\%in\%}\NormalTok{ dfpp}\SpecialCharTok{$}\NormalTok{INSEE\_DEP),]}
+
+\CommentTok{\#On place le reste des département dans une base distincte}
+
+\NormalTok{dfno }\OtherTok{\textless{}{-}}\NormalTok{ df[}\SpecialCharTok{{-}}\FunctionTok{which}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{INSEE\_DEP }\SpecialCharTok{\%in\%}\NormalTok{ dffp}\SpecialCharTok{$}\NormalTok{INSEE\_DEP),]}
+
+\CommentTok{\#On conserve les numéros des départements dans l\textquotesingle{}ordre}
+
+\NormalTok{dep\_dffp }\OtherTok{\textless{}{-}}\NormalTok{ dffp}\SpecialCharTok{$}\NormalTok{INSEE\_DEP}
+\NormalTok{dep\_dfno }\OtherTok{\textless{}{-}}\NormalTok{ dfno}\SpecialCharTok{$}\NormalTok{INSEE\_DEP}
+
+
+\CommentTok{\#On retire dans les deux bases les éléments superflus}
+
+\NormalTok{dffp }\OtherTok{\textless{}{-}}\NormalTok{ dffp[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{12}\NormalTok{] }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{st\_drop\_geometry}\NormalTok{()}
+\NormalTok{dfno }\OtherTok{\textless{}{-}}\NormalTok{ dfno[,}\DecValTok{7}\SpecialCharTok{:}\DecValTok{12}\NormalTok{] }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{st\_drop\_geometry}\NormalTok{()}
+
+\CommentTok{\#Construction d\textquotesingle{}une matrice des distances (vide) entre les départements optimaux et les autres}
+
+\NormalTok{dist\_totale}\OtherTok{\textless{}{-}}\FunctionTok{matrix}\NormalTok{(}\AttributeTok{data =} \ConstantTok{NA}\NormalTok{,}
+             \AttributeTok{nrow =} \FunctionTok{nrow}\NormalTok{(dfno),}
+             \AttributeTok{ncol =} \FunctionTok{nrow}\NormalTok{(dffp)) }\CommentTok{\#la matrice mesure la distance totale entre chaque département}
+
+
+\NormalTok{dist\_valeur}\OtherTok{\textless{}{-}}\FunctionTok{matrix}\NormalTok{(}\AttributeTok{data =} \FunctionTok{vector}\NormalTok{(}\StringTok{"list"}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(dfno)}\SpecialCharTok{*}\FunctionTok{nrow}\NormalTok{(dffp)),}
+             \AttributeTok{nrow =} \FunctionTok{nrow}\NormalTok{(dfno),}
+             \AttributeTok{ncol =} \FunctionTok{nrow}\NormalTok{(dffp)) }\CommentTok{\#La matrice stocke les différences par indicateur entre chaque département}
+
+\CommentTok{\#La distance sera exprimée en nombre d\textquotesingle{}écarts{-}type pour chaque indicateur}
+
+\NormalTok{et}\OtherTok{\textless{}{-}}\FunctionTok{c}\NormalTok{(}\FunctionTok{sd}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{scol),}
+      \FunctionTok{sd}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{ndv),}
+      \FunctionTok{sd}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{chom),}
+      \FunctionTok{sd}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{suro),}
+      \FunctionTok{sd}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{eprox),}
+      \FunctionTok{sd}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{morti))}
+
+\CommentTok{\#Une boucle permettra de calculer la distance pour le même indicateur entre chaque couple de départements}
+
+\ControlFlowTok{for}\NormalTok{ (x }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{nrow}\NormalTok{(dfno)) \{}
+  \ControlFlowTok{for}\NormalTok{ (y }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{nrow}\NormalTok{(dffp)) \{}
+    
+\NormalTok{    valeur }\OtherTok{\textless{}{-}}\NormalTok{ ((dffp[y,]}\SpecialCharTok{{-}}\NormalTok{dfno[x,])}\SpecialCharTok{/}\NormalTok{et)}
+    
+\NormalTok{    dist\_totale[x,y] }\OtherTok{\textless{}{-}}\NormalTok{ valeur }\SpecialCharTok{\%\textgreater{}\%} 
+      \FunctionTok{abs}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+      \FunctionTok{sum}\NormalTok{()}
+    
+\NormalTok{    dist\_valeur[x,y]}\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(valeur)}
+    
+\NormalTok{  \}\}}
+\end{Highlighting}
+\end{Shaded}
+
+La matrice obtenue donne la distance virtuelle entre chaque département
+non-optimal \(x_i\) et le département optimal \(y_i\). Le point le plus
+proche pour chaque départment est donc la valeur minimale \(y_i\)
+calculée. Après avoir identifié les départements sur le front associé,
+nous pouvons récupérer les différences entre chaque indicateur. Cette
+différence nous permet de déterminer sur quel indicateur ou dimension un
+département s'éloigne le plus du front de Pareto, ceci illustre un
+``besoin prioritaire'', ayant la plus grande marge d'amélioration et à
+la fois l'aspect le plus urgent si on considère que chaque indicateur
+mobilisé est d'importance égale.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Calcul de la distance optimale minimale}
+\FunctionTok{require}\NormalTok{(matrixStats)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Le chargement a nécessité le package : matrixStats
+\end{verbatim}
+
+\begin{verbatim}
+
+Attachement du package : 'matrixStats'
+\end{verbatim}
+
+\begin{verbatim}
+L'objet suivant est masqué depuis 'package:dplyr':
+
+    count
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mins}\OtherTok{\textless{}{-}}\NormalTok{dist\_totale }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rowMins}\NormalTok{()}
+
+\CommentTok{\#colonne de la matrice des distance associée au minimum}
+
+\NormalTok{i}\OtherTok{\textless{}{-}}\FunctionTok{apply}\NormalTok{(dist\_totale }\SpecialCharTok{==}\NormalTok{ dist\_totale }\SpecialCharTok{\%\textgreater{}\%} 
+        \FunctionTok{rowMins}\NormalTok{(), }
+      \DecValTok{1}\NormalTok{, }
+      \ControlFlowTok{function}\NormalTok{(x)\{}\FunctionTok{which}\NormalTok{(x }\SpecialCharTok{==} \ConstantTok{TRUE}\NormalTok{)\})}
+
+\NormalTok{pref\_dist}\OtherTok{\textless{}{-}}\NormalTok{dist\_valeur[}\FunctionTok{cbind}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{nrow}\NormalTok{(dist\_valeur),i)]}
+
+\NormalTok{pref\_dist}\OtherTok{\textless{}{-}}\FunctionTok{do.call}\NormalTok{(rbind.data.frame, pref\_dist)}
+
+\CommentTok{\#Cette fonction nous donne l\textquotesingle{}indicateur des départements qui les éloigne le plus du front de Pareto}
+\NormalTok{col\_index}\OtherTok{\textless{}{-}}\FunctionTok{apply}\NormalTok{(pref\_dist }\SpecialCharTok{==}\NormalTok{ pref\_dist }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{as.matrix}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{rowMins}\NormalTok{(), }\DecValTok{1}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(x)\{}\FunctionTok{which}\NormalTok{(x }\SpecialCharTok{==} \ConstantTok{TRUE}\NormalTok{)\})}
+
+
+\CommentTok{\#Nous pouvons modifier la matrice des distances de telle manière que nous retenons uniquement les indicateurs}
+
+\NormalTok{pref\_dist[pref\_dist}\SpecialCharTok{\textgreater{}}\DecValTok{0}\NormalTok{]}\OtherTok{\textless{}{-}}\DecValTok{0}
+
+\NormalTok{pref\_dist}\OtherTok{\textless{}{-}}\FunctionTok{abs}\NormalTok{(pref\_dist)}
+
+\NormalTok{pref\_dist}\SpecialCharTok{$}\NormalTok{priori}\OtherTok{\textless{}{-}}\FunctionTok{colnames}\NormalTok{(pref\_dist)[col\_index] }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{as.factor}\NormalTok{()}
+
+\CommentTok{\#Pour cartographier le résultat, il faut recréer l\textquotesingle{}association de nos matrices à l\textquotesingle{}objet sf}
+
+\CommentTok{\#création d\textquotesingle{}une variable "priori" pour dffp}
+\NormalTok{dffp}\SpecialCharTok{$}\NormalTok{priori}\OtherTok{\textless{}{-}}\StringTok{"Sur le front de Pareto"}
+\CommentTok{\#réattribution des numéros de département}
+\NormalTok{dffp}\SpecialCharTok{$}\NormalTok{INSEE\_DEP}\OtherTok{\textless{}{-}}\NormalTok{dep\_dffp}
+\NormalTok{pref\_dist}\SpecialCharTok{$}\NormalTok{INSEE\_DEP}\OtherTok{\textless{}{-}}\NormalTok{dep\_dfno}
+\CommentTok{\#Fusion de dffp et dfno}
+\NormalTok{pref\_dist}\OtherTok{\textless{}{-}}\FunctionTok{rbind}\NormalTok{(dffp,pref\_dist)}
+\CommentTok{\#Jointure avec l\textquotesingle{}objet sf}
+
+\NormalTok{pref\_dist}\OtherTok{\textless{}{-}}\FunctionTok{left\_join}\NormalTok{(dep, pref\_dist, }\StringTok{"INSEE\_DEP"}\NormalTok{)}
+
+\CommentTok{\#Cartographie des indicateurs prioritaires}
+
+\FunctionTok{mf\_typo}\NormalTok{(pref\_dist, }\AttributeTok{var =} \StringTok{"priori"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-12-1.pdf}}
+
+Notre analyse illustre les besoins prioritaires parmi les six
+indicateurs que nous avons mobilisé. Les départements sur le front de
+Pareto ne montrent pas d'axe d'amélioration puisqu'ils représentent les
+meilleurs scénarios observés en France métropolitaine. Le taux de
+chômage apparaît comme le besoin prioritaire sur un axe nord-sud,
+désobéissant partiellement à la diagonale du vide. La Corse, le Rhône,
+les départements littoraux en PACA et la majorité des départements de la
+région parisienne présentent tant qu'à eux une priorité sur la
+suroccupation du logement. La mortalité infantile est éclatée sur la
+moitié ouest du territoire mais se regroupe géographiquement dans une
+partie de la région Grand-Est. La question de la proximité aux
+équipements concerne davantage des départements au centre de l'hexagone.
+Enfin, la question du taux de la population ayant au moins le bac
+n'apparaît pas comme un problème récurrent, n'apparaissant que dans
+quatre département.
+
+Nous pouvons entrer davantage dans le détail, en dessinant la pluralité
+des distances entre les départements et le front de Pareto par l'usage
+d'une carte proportionnelle :
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Cartographie en diagrammes avec ggplot}
+
+\CommentTok{\#coordonnées des centroïdes des départements}
+\NormalTok{coord}\OtherTok{\textless{}{-}}\NormalTok{pref\_dist }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{st\_centroid}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{st\_coordinates}\NormalTok{() }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Warning: st_centroid assumes attributes are constant over geometries
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Association des coordonnées}
+\NormalTok{pie\_df}\OtherTok{\textless{}{-}}\FunctionTok{cbind}\NormalTok{(pref\_dist,coord)}
+
+\CommentTok{\#Suppression des départements sur le front de Pareto}
+\NormalTok{pie\_df}\OtherTok{\textless{}{-}}\NormalTok{pie\_df[}\FunctionTok{which}\NormalTok{(pref\_dist}\SpecialCharTok{$}\NormalTok{priori }\SpecialCharTok{!=} \StringTok{"Sur le front de Pareto"}\NormalTok{),]}
+
+\CommentTok{\#Variable de la somme des distances}
+\NormalTok{pie\_df}\SpecialCharTok{$}\NormalTok{total}\OtherTok{\textless{}{-}}\NormalTok{(}\FunctionTok{rowSums}\NormalTok{(pie\_df[,}\DecValTok{6}\SpecialCharTok{:}\DecValTok{11}\NormalTok{] }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{st\_drop\_geometry}\NormalTok{()))}\SpecialCharTok{*}\DecValTok{4000}
+
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ pref\_dist) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_sf}\NormalTok{() }\SpecialCharTok{+} 
+  \FunctionTok{geom\_scatterpie}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ X, }
+                      \AttributeTok{y =}\NormalTok{ Y, }
+                      \AttributeTok{group =} \FunctionTok{as.factor}\NormalTok{(INSEE\_DEP),}
+                      \AttributeTok{r =}\NormalTok{ total), }
+                  \AttributeTok{data =}\NormalTok{ pie\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{st\_drop\_geometry}\NormalTok{(),}
+                  \AttributeTok{cols =} \FunctionTok{c}\NormalTok{(}\StringTok{"scol"}\NormalTok{,}\StringTok{"ndv"}\NormalTok{,}\StringTok{"chom"}\NormalTok{,}\StringTok{"suro"}\NormalTok{,}\StringTok{"eprox"}\NormalTok{,}\StringTok{"morti"}\NormalTok{),}
+                  \AttributeTok{legend\_name =} \StringTok{"Besoins prioritaires"}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-13-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ pref\_dist) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_sf}\NormalTok{() }\SpecialCharTok{+} 
+  \FunctionTok{geom\_scatterpie}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ X, }
+                      \AttributeTok{y =}\NormalTok{ Y, }
+                      \AttributeTok{group =} \FunctionTok{as.factor}\NormalTok{(INSEE\_DEP)), }
+                  \AttributeTok{data =}\NormalTok{ pie\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{st\_drop\_geometry}\NormalTok{(),}
+                  \AttributeTok{cols =} \FunctionTok{c}\NormalTok{(}\StringTok{"scol"}\NormalTok{,}\StringTok{"ndv"}\NormalTok{,}\StringTok{"chom"}\NormalTok{,}\StringTok{"suro"}\NormalTok{,}\StringTok{"eprox"}\NormalTok{,}\StringTok{"morti"}\NormalTok{),}
+                  \AttributeTok{legend\_name =} \StringTok{"Besoins prioritaires"}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-pdf/unnamed-chunk-13-2.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{include\_graphics}\NormalTok{(}\StringTok{"figures/logo.png"}\NormalTok{) }\CommentTok{\# lien vers le fichier image}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=3.125in,height=\textheight,keepaspectratio]{figures/logo.png}
+
+}
+
+\caption{Image 1 : logo Rzine}
+
+\end{figure}%
+
+\subsubsection{Insérer un tableau}\label{insuxe9rer-un-tableau}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\FunctionTok{kable}\NormalTok{(}\FunctionTok{head}\NormalTok{(iris))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}rrrrl@{}}
+\caption{Tableau 1}\tabularnewline
+\toprule\noalign{}
+Sepal.Length & Sepal.Width & Petal.Length & Petal.Width & Species \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+Sepal.Length & Sepal.Width & Petal.Length & Petal.Width & Species \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+5.1 & 3.5 & 1.4 & 0.2 & setosa \\
+4.9 & 3.0 & 1.4 & 0.2 & setosa \\
+4.7 & 3.2 & 1.3 & 0.2 & setosa \\
+4.6 & 3.1 & 1.5 & 0.2 & setosa \\
+5.0 & 3.6 & 1.4 & 0.2 & setosa \\
+5.4 & 3.9 & 1.7 & 0.4 & setosa \\
+\end{longtable}
+
+\subsubsection{\texorpdfstring{Options du
+\emph{chunk}}{Options du chunk}}\label{options-du-chunk}
+
+Quelques exemples :
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Exécute le code du chunk}
+\CommentTok{\#| eval: true}
+
+\CommentTok{\# Affiche le code}
+\CommentTok{\#| echo: true}
+
+\CommentTok{\# Affiche les warnings}
+\CommentTok{\#| warning: true}
+
+\CommentTok{\# Identifiant du chunk}
+\CommentTok{\#| label: fig{-}1}
+
+\CommentTok{\# Titre de l\textquotesingle{}image}
+\CommentTok{\#| fig{-}cap: Un exemple d\textquotesingle{}image}
+
+\CommentTok{\# Alignement de l\textquotesingle{}image dans la page}
+\CommentTok{\#| fig{-}align: left, right, center}
+
+\CommentTok{\# Dimension verticale d\textquotesingle{}une figure}
+\CommentTok{\#| fig{-}height: 3}
+
+\CommentTok{\# Dimension horizontale d\textquotesingle{}une figure}
+\CommentTok{\#| fig{-}width: 7}
+
+\CommentTok{\# Dimension horizontale d\textquotesingle{}une image}
+\CommentTok{\#| out.width: 300px}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Compiler l'article}\label{compiler-larticle}
+
+Dans l'IDE RStudio, cliquez sur le bouton \textbf{Render} ou utilisez le
+raccourci suivant : \texttt{Ctrl\ +\ Maj\ +\ K}
+
+Vous pouvez également utiliser les lignes de commande suivantes :
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{quarto}\NormalTok{ render document.qmd }\AttributeTok{{-}{-}to}\NormalTok{ html}
+\ExtensionTok{quarto}\NormalTok{ render document.qmd }\AttributeTok{{-}{-}to}\NormalTok{ pdf}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Soumettre un article}\label{soumettre-un-article}
+
+Retrouvez le processus de soumission sur
+\href{https://rzine.fr/documentation/soumission/}{cette page}.
+
+\section{Annexes de l'article}\label{annexes-de-larticle}
+
+\subsection{Données}\label{donnuxe9es}
+
+Tout·e lecteur·ice doit être en mesure de reproduire la démonstration de
+l'article sans contrainte de réutilisation. L'intégralité des données
+utilisées doivent obligatoirement être :
+
+\begin{itemize}
+\tightlist
+\item
+  Correctement présentées dans l'article
+\item
+  Libre d'utilisation et de diffusion
+\item
+  Mises à disposition des lecteur·rice·s, même si ces données sont déjà
+  en libre accès
+\item
+  Décrites par des métadonnées (\texttt{readme.txt})
+\item
+  Respectueuses du règlement général sur la protection des données
+\end{itemize}
+
+\textbf{Toutes les données utilisées dans l'article devront être
+stockées dans le répertoire data.}
+
+\subsection{Références
+bibliographiques}\label{ruxe9fuxe9rences-bibliographiques}
+
+Une bibliographie est attendue (\texttt{references.bib}). Elle sert à
+positionner votre contribution dans le champ thématique et/ou
+disciplinaire.
+
+Pour appeler une référence dans le corps du document, utilisez le symbol
+\texttt{@}. Par exemple : Cameron et Trivedi (2013)
+
+La liste de références bibliographiques citées sera automatiquement
+ajoutée en fin de document :
+
+\section*{Bibliographie}\label{bibliographie}
+\addcontentsline{toc}{section}{Bibliographie}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-CameronTrivedi2013}
+Cameron, A. C. et Trivedi, P. K. (2013). \emph{Regression Analysis of
+Count Data} (2nd éd.). Cambridge University Press.
+
+\end{CSLReferences}
+
+\section*{Annexes}\label{annexes}
+\addcontentsline{toc}{section}{Annexes}
+
+\subparagraph*{Informations de session}\label{informations-de-session}
+\addcontentsline{toc}{subparagraph}{Informations de session}
+
+\begin{verbatim}
+R version 4.3.3 (2024-02-29)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: TUXEDO OS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+
+locale:
+ [1] LC_CTYPE=fr_FR.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=fr_FR.UTF-8        LC_COLLATE=fr_FR.UTF-8    
+ [5] LC_MONETARY=fr_FR.UTF-8    LC_MESSAGES=fr_FR.UTF-8   
+ [7] LC_PAPER=fr_FR.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=fr_FR.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Europe/Paris
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] matrixStats_1.5.0 rPref_1.5.0       scatterpie_0.2.6  mapsf_1.1.0      
+[5] dplyr_1.1.4       sf_1.0-24         ggplot2_4.0.1     reshape2_1.4.5   
+[9] readr_2.1.6      
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6          xfun_0.56             tzdb_0.5.0           
+ [4] vctrs_0.7.1           tools_4.3.3           generics_0.1.4       
+ [7] yulab.utils_0.2.4     parallel_4.3.3        tibble_3.3.1         
+[10] proxy_0.4-29          pkgconfig_2.0.3       KernSmooth_2.23-22   
+[13] RColorBrewer_1.1-3    S7_0.2.1              RcppParallel_5.1.11-1
+[16] lifecycle_1.0.5       compiler_4.3.3        farver_2.1.2         
+[19] stringr_1.6.0         tinytex_0.58          ggforce_0.5.0        
+[22] maplegend_0.5.0       ggfun_0.2.0           htmltools_0.5.9      
+[25] class_7.3-23          lazyeval_0.2.2        yaml_2.3.12          
+[28] pillar_1.11.1         crayon_1.5.3          tidyr_1.3.2          
+[31] MASS_7.3-60.0.1       classInt_0.4-11       wk_0.9.5             
+[34] tidyselect_1.2.1      digest_0.6.39         stringi_1.8.7        
+[37] purrr_1.2.1           labeling_0.4.3        polyclip_1.10-7      
+[40] fastmap_1.2.0         grid_4.3.3            cli_3.6.5            
+[43] magrittr_2.0.4        e1071_1.7-17          withr_3.0.2          
+[46] scales_1.4.0          rappdirs_0.3.4        bit64_4.6.0-1        
+[49] rmarkdown_2.30        igraph_2.1.4          bit_4.6.0            
+[52] otel_0.2.0            hms_1.1.4             evaluate_1.0.5       
+[55] knitr_1.51            s2_1.1.9              rlang_1.1.7          
+[58] Rcpp_1.1.1            glue_1.8.0            DBI_1.2.3            
+[61] tweenr_2.0.3          rstudioapi_0.18.0     vroom_1.7.0          
+[64] jsonlite_2.0.0        R6_2.6.1              plyr_1.8.9           
+[67] fs_1.6.6              units_1.0-0          
+\end{verbatim}
+
+
+
+
+\end{document}
