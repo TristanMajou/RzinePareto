@@ -31,20 +31,23 @@ Une première étape consistera en la production d'un indice composite sur le bi
 Dans cet article, nous traiterons le cas de la France entière, c'est-à-dire de la métropole ainsi que des départements d'outre-mer (Guadeloupe, Guyane, Martinique, Mayotte et La Réunion). Un ensemble de packages R est utilisé :
 
 ```{r message=FALSE, warning=FALSE}
-#| label: Packages utilisés
-library(dplyr) # Utile pour le traitement des données.
-library(ggplot2) # Un package couramment utilisé pour la création de graphiques.
+#| label: Packages utilisés (cachés)
+#| include: false
+library(readr) # Lit les csv
+library(DT) # Génère des tableaux HTML à partir d'une table de données.
 library(egg) # Un complément de ggplot2, permettant d'utiliser davantage de thèmes.
+
+```
+
+```{r message=FALSE, warning=FALSE}
+#| label: Packages utilisés
 library(matrixStats) # Facilite le calcul et la manipulation de matrices.
-library(readr) # Lit les fichiers csv.
-library(reshape2) # Automatise les transformations des tables élémentaires en format long.
 library(rPref) # Un outil spécialisé dans le calcul des maxima, en particulier le front de Pareto.
-library(scatterpie) # Permet de dessiner des diagrammes circulaires sur une cartographie ggplot2.
 library(sf) # Un outil permettant de faire du SIG dans R, tout en facilitant le traitement des données.
 library(ggspatial) # Un package léger qui facilite l'implantation d'une flèche du nord et d'une barre d'échelle.
+library(scatterpie) # Permet de dessiner des diagrammes circulaires sur une cartographie ggplot2.
 library(patchwork) # Connecte plusieurs graphiques ensemble.
 library(classInt) # Facilite la discrétisation.
-library(DT) # Génère des tableaux HTML à partir d'une table de données.
 ```
 
 Avec ces packages, nous mobilisons deux bases de données :
@@ -76,12 +79,12 @@ ocean<-st_read("data/ne_50m_ocean/ne_50m_ocean.shp", quiet = T)
 
 carto_france<-function(ggobj, theme_element, labobj){
 
-fm_lim <- st_bbox(dep %>% filter(code_insee < 970))
-guad_lim <- st_bbox(dep %>% filter(code_insee == 971) %>% st_buffer(dist = 5000))
-mart_lim <- st_bbox(dep %>% filter(code_insee == 972)%>% st_buffer(dist = 5000))
-guya_lim <- st_bbox(dep %>% filter(code_insee == 973)%>% st_buffer(dist = 10000))
-reun_lim <- st_bbox(dep %>% filter(code_insee == 974)%>% st_buffer(dist = 5000))
-mayo_lim <- st_bbox(dep %>% filter(code_insee == 976)%>% st_buffer(dist = 5000))
+fm_lim <- st_bbox(dep |> subset(code_insee < 970))
+guad_lim <- st_bbox(dep |> subset(code_insee == 971) |> st_buffer(dist = 5000))
+mart_lim <- st_bbox(dep |> subset(code_insee == 972)|> st_buffer(dist = 5000))
+guya_lim <- st_bbox(dep |> subset(code_insee == 973)|> st_buffer(dist = 10000))
+reun_lim <- st_bbox(dep |> subset(code_insee == 974)|> st_buffer(dist = 5000))
+mayo_lim <- st_bbox(dep |> subset(code_insee == 976)|> st_buffer(dist = 5000))
 
 #Modification de l'encadrement de l'hexagone pour avoir une vision plus large
 fm_lim<-fm_lim + c(-1.5,-1.5,1.5,1.5)
@@ -325,9 +328,17 @@ df$morti_n<-1-fnorm(df$morti)
 pal<-c("#e76f51","#264653","#e9c46a","#8ab17d","#f4a261","#2a9d8f")
 
 #Distribution des indicateurs
+
+df_graph<-df[, c(2, 9:14)] |> as.data.frame()
+
 ggplot(
-  melt(df[,c(2,9:14)] %>% as.data.frame()),
-  aes(x = variable, y = value, fill = variable))+
+  data = reshape(df_graph,
+                   varying = list(2:7),
+                   v.names = "valeur",
+                   timevar = "variable",
+                   times = names(df_graph)[2:7],
+                   direction = "long"),
+  aes(x = variable, y = valeur, fill = variable))+
   geom_boxplot(outliers = FALSE)+
   geom_jitter(alpha = 0.5, size = 3)+
   theme_minimal()+
@@ -354,7 +365,7 @@ df$indice<-(df$scol_n + df$ndv_n + df$chom_n + df$suro_n + df$eprox_n + df$morti
 df$indice_n<-fnorm(df$indice)
  
 #Jointure spatiale
-df<-left_join(dep,df,"code_insee")
+df<-merge(dep,df,"code_insee")
 
 #Limites de classes
 limites<-classIntervals(var = df$indice_n,
@@ -384,18 +395,18 @@ Les classes successives dressent le portrait d'une diagonale du vide qui combine
 #| label: Classement des départements
 #| code-fold: true
 
-data_table<-df[,c("nom_officiel","code_insee","indice_n")] %>%
+data_table<-df[,c("nom_officiel","code_insee","indice_n")] |>
   st_drop_geometry()
 
-datatable(df[,c("nom_officiel","code_insee","indice_n")] %>%
+datatable(df[,c("nom_officiel","code_insee","indice_n")] |>
   st_drop_geometry(),
   caption = "Tableau 1 : Classement des départements",
   colnames = c("Département","code Insee","Valeur de l'indice"),
-  rownames = rank(1-df$indice_n) %>% 
+  rownames = rank(1-df$indice_n) |> 
     as.character(),
   options = list(
     order = list(3,"desc")
-    )) %>% formatRound("indice_n", digits = 3)
+    )) |> formatRound("indice_n", digits = 3)
 
 
 ```
@@ -550,7 +561,7 @@ La mise en place de priorités dans notre analyse amène à une importante requa
 
 psel(df,
      p = low(df$eprox) | low(df$morti),
-     top = nrow(df)) %>%
+     top = nrow(df)) |>
   ggplot(aes(x = eprox,
              y = morti,
              colour = factor(.level)))+
@@ -558,7 +569,7 @@ psel(df,
   geom_step(direction = "vh")+
   scale_color_manual(values = c("#CC1236","#D32E3D","#DB4B45","#E3684E",
                      "#EC8557","#EF9E5F","#DEA966","#CDB46D",
-                     "#A8B174","#7EAB7A","#54A480","#2A9D86","#00978D") %>% rev())+
+                     "#A8B174","#7EAB7A","#54A480","#2A9D86","#00978D") |> rev())+
   scale_x_continuous(labels = function(x) paste(x,"%"))+
   scale_y_continuous(labels = function(x) paste(x,"‰"))+
   theme_article()+
@@ -588,7 +599,7 @@ dfpref<-psel(df, pref, top = nrow(df))
 carto_france(ggobj = geom_sf(data = dfpref, aes(fill = as.character(.level))), 
              theme_element =
                scale_fill_manual(
-                 values = pal_chroma %>% rev()),
+                 values = pal_chroma |> rev()),
              labobj = labs(fill = "Seuil d'optimisation"))
 
 
@@ -723,8 +734,8 @@ dep_dfno <- dfno$code_insee
 
 #On retire dans les deux bases les variables superflues
 
-dffp <- dffp[,vars] %>% st_drop_geometry()
-dfno <- dfno[,vars] %>% st_drop_geometry()
+dffp <- dffp[,vars] |> st_drop_geometry()
+dfno <- dfno[,vars] |> st_drop_geometry()
 
 #On construit une matrice des distances (vide) entre les départements optimaux et les autres
 
@@ -750,8 +761,8 @@ for (x in 1:nrow(dfno)) {
   for (y in 1:nrow(dffp)) {
     valeur <- ((dffp[y,]-dfno[x,])/et)
     
-    dist_totale[x,y] <- valeur %>% 
-      abs() %>% 
+    dist_totale[x,y] <- valeur |> 
+      abs() |> 
       sum()
     
     dist_valeur[x,y]<- list(valeur)
@@ -767,11 +778,11 @@ La matrice obtenue donne la distance virtuelle entre chaque département non opt
 #| label: Calcul des distances
 #Calcul de la distance totale minimale.
 
-mins<-dist_totale %>% rowMins()
+mins<-dist_totale |> rowMins()
 
 #Indicateur de la colonne de la matrice des distance associée au minimum.
 
-i<-apply(dist_totale == dist_totale %>% 
+i<-apply(dist_totale == dist_totale |> 
         rowMins(), 
       1, 
       function(x){which(x == TRUE)})
@@ -801,13 +812,13 @@ pref_dist[pref_dist<0]<-0
 
 #Cette fonction nous donne l'indicateur des départements qui les éloigne le plus du front de Pareto.
 
-col_index<-apply(pref_dist == pref_dist %>% 
-  as.matrix() %>% 
+col_index<-apply(pref_dist == pref_dist |> 
+  as.matrix() |> 
   rowMaxs(), 1, function(x){which(x == TRUE)})
 
 #L'indicateur ayant la plus grande distance pour un département représente un besoin prioritaire.
 
-pref_dist$priori<-colnames(pref_dist)[col_index] %>% as.factor()
+pref_dist$priori<-colnames(pref_dist)[col_index] |> as.factor()
 #Pour cartographier le résultat, il faut recréer l'association de nos matrices à l'objet sf.
 
 #création d'une variable du besoin prioritaire pour dffp.
@@ -820,7 +831,7 @@ dffp[,vars]<-NA
 #Fusion de dffp et dfno.
 pref_dist<-rbind(dffp,pref_dist)
 #Jointure avec l'objet sf.
-pref_dist<-left_join(dep, pref_dist, "code_insee")
+pref_dist<-merge(dep, pref_dist, "code_insee")
 
 ```
 
@@ -841,20 +852,20 @@ B est donc le point optimal le plus proche de C, en revanche, la valeur du premi
 nom_dep_besoin<-c("Mayotte","Guyane","Guadeloupe","La Réunion","Seine-Saint-Denis","Martinique")
 
 #Variable de la somme des distances
-pref_dist$total<-(rowSums(pref_dist[,vars] %>% st_drop_geometry()))
+pref_dist$total<-(rowSums(pref_dist[,vars] |> st_drop_geometry()))
 
 graph <- rbind(
-  pref_dist[,c("nom_officiel","total")] %>% 
-  st_drop_geometry() %>% 
-  filter(nom_officiel %in% nom_dep_besoin),
-  c("Reste de la France",pref_dist$total[which(!pref_dist$nom_officiel %in% nom_dep_besoin)] %>% sum(na.rm = T))
+  pref_dist[,c("nom_officiel","total")] |> 
+  st_drop_geometry() |> 
+  subset(nom_officiel %in% nom_dep_besoin),
+  c("Reste de la France",pref_dist$total[which(!pref_dist$nom_officiel %in% nom_dep_besoin)] |> sum(na.rm = T))
 )
 
-graph$total<-graph$total %>% as.numeric()
+graph$total<-graph$total |> as.numeric()
 
-graph %>%
-  arrange(total) %>%
-  mutate(nom_officiel = factor(nom_officiel, levels = nom_officiel)) %>%
+graph[order(graph$total),] |>
+  transform(graph[order(graph$total), ],
+                   nom_officiel = factor(nom_officiel, levels = nom_officiel)) |>
            ggplot(aes(x = nom_officiel, y = total)) + 
            geom_bar(stat = "identity", fill = c("#CC1236","#CC1236","#CC1236","#00978D","#CC1236","#CC1236","#CC1236"),
                     color = "black", lwd = 1)+
@@ -903,8 +914,8 @@ Nous pouvons donc tenter de représenter ce détail, en dessinant la pluralité 
 #| code-fold: true
 
 #coordonnées des centroïdes des départements
-coord<-df %>%
-  st_centroid() %>% 
+coord<-df |>
+  st_centroid() |> 
   st_coordinates() 
 #Association des coordonnées
 pie_df<-cbind(pref_dist,coord)
@@ -920,7 +931,7 @@ pie_df$scale<-c(rep(0.1, 57),0.06,0.06,0.15,0.06,0.03)
 
 
 #Cartographie
-carto_france(ggobj = geom_scatterpie(data = pie_df %>%
+carto_france(ggobj = geom_scatterpie(data = pie_df |>
                     st_drop_geometry(),
                     aes(x = X, 
                       y = Y, 
@@ -941,7 +952,7 @@ carto_france(ggobj = geom_scatterpie(data = pie_df %>%
 #| code-fold: true
 #| column: margin
 
-idf_lim<-st_bbox(dep %>% filter(code_insee_de_la_region == 11))
+idf_lim<-st_bbox(dep |> subset(code_insee_de_la_region == 11))
 
 ggplot() + 
   geom_sf(data = dep, fill = "#c2ae93", col = "black")+
@@ -950,8 +961,8 @@ ggplot() +
                       y = Y, 
                       group = as.factor(code_insee)), 
                   pie_scale = 5.5,
-                  data = pie_df %>% 
-                    filter(code_insee_de_la_region == 11) %>%
+                  data = pie_df |> 
+                    subset(code_insee_de_la_region == 11) |>
   st_drop_geometry(),
                   cols = c("scol","ndv","chom","suro","eprox","morti"),
                   legend_name = "Besoins prioritaires")+
